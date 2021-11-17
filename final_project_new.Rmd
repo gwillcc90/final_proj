@@ -20,7 +20,10 @@ bb_dat = read.csv("CollegeBasketballPlayers2009-2021.csv")
 school_dat = read_excel("bb_school_ranks.xlsx")
 ```
 
-Cleaned data to make easier to work with
+Cleaned data to make easier to work with:
+1. rename variables to readable, workable names
+2. filter to recent 3 years
+3. remove less-meaningful variables
 ```{r data cleanup}
 new_bb = bb_dat %>%
   rename(role = X, player = player_name) %>%
@@ -32,29 +35,41 @@ new_bb = bb_dat %>%
 
 glimpse(new_bb)
 
+#rename school to team to match new_bb
+new_ranks = school_dat %>%
+  rename(team = school)
+
+glimpse(new_ranks)
+
+# reminder to remove na data
 # new_bb %>%
 #   filter(is.na())
-glimpse(school_dat)
 ```
 
-Creating a data frame to join with data to filter for top 25 teams in each season
-```{r top_25}
-# year = [2017:2019]
-# teams = 
+Creating joined frame to work with top 25 ranked schools:
+```{r joined}
+top_25s = right_join(new_bb,new_ranks)
+top_25s
+```
+
+In order to create a dream team for the 2022 season we must look at freshman in 2017(-2018), freshman and sophmores in 2018(-2019), and freshman, sophmore, and juniors in 2019(-2020)
+```{r dream team filter}
+# top_25_to_fr = 
+
 
 ```
 
 ```{r}
 
-new_bb %>% #number of players from each school
+top_25s %>% #number of players from each school
   group_by(team) %>%
   summarize(n=n(),
             n_players = n_distinct(player))
 
 #looking at top offensive ratings
-new_bb %>%
-  filter(team == "Abilene Christian" | team == "Duke") %>%
-  arrange(desc(Ortg))
+top_25s %>%
+  arrange(desc(Ortg)) %>%
+  filter(yr == "Fr", year == 2017)
 
 # Duke U twoPOintAttem v percentage
 new_bb %>%
@@ -70,7 +85,6 @@ new_bb %>%
 
 1. Correlation between year (freshman, sophmore, etc) and stats
 ```{r}
-new_bb = filter(team == "Abilene Christian" & yr == "So")
   
 
 ```
