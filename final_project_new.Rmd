@@ -12,12 +12,15 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(ggplot2)
+library(readxl)
 ```
 
 ```{r import data}
 bb_dat = read.csv("CollegeBasketballPlayers2009-2021.csv")
+school_dat = read_excel("bb_school_ranks.xlsx")
 ```
 
+Cleaned data to make easier to work with
 ```{r data cleanup}
 new_bb = bb_dat %>%
   rename(role = X, player = player_name) %>%
@@ -28,8 +31,18 @@ new_bb = bb_dat %>%
          & !Rec.Rank)
 
 glimpse(new_bb)
+
+# new_bb %>%
+#   filter(is.na())
+glimpse(school_dat)
 ```
 
+Creating a data frame to join with data to filter for top 25 teams in each season
+```{r top_25}
+# year = [2017:2019]
+# teams = 
+
+```
 
 ```{r}
 
