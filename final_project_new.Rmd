@@ -31,7 +31,7 @@ new_bb = bb_dat %>%
   select(!ht & !dunksmade & !dunksmiss.dunksmade
          & !dunksmade..dunksmade.dunksmiss.
          & !type & !num & !pid & !pick & !pfr
-         & !Rec.Rank)
+         & !Rec.Rank & !conf)
 
 glimpse(new_bb)
 
@@ -49,12 +49,24 @@ glimpse(new_ranks)
 Creating joined frame to work with top 25 ranked schools:
 ```{r joined}
 top_25s = right_join(new_bb,new_ranks)
-top_25s
 ```
 
 In order to create a dream team for the 2022 season we must look at freshman in 2017(-2018), freshman and sophmores in 2018(-2019), and freshman, sophmore, and juniors in 2019(-2020)
 ```{r dream team filter}
-# top_25_to_fr = 
+#filters for freshman in 2017-2018 season
+top_25_fr_2017 = top_25s %>%
+  filter(yr == 'Fr' & year == 2017)
+
+top_25_fr_2017
+
+#filters for freshman and sophmores in 2018-2019 season
+top_25_to_so_2018 = top_25s %>%
+  filter(yr == "Fr" & year == 2018
+         | yr == "So" & year == 2018)
+
+top_25_to_so_2018
+
+#need to filter for fr,so,and juniors in 2019-2020
 
 
 ```
@@ -85,7 +97,15 @@ new_bb %>%
 
 1. Correlation between year (freshman, sophmore, etc) and stats
 ```{r}
-  
+top_25_fr_2017 %>%
+  filter(GP > 20 & Min_per > 50) %>%
+  ggplot(aes(x = twoPA, y = twoP_per)) + 
+  geom_point()
+
+top_25_fr_2017 %>%
+  filter(GP > 20 & Min_per > 50) %>%
+  ggplot(aes(x = ORB_per, y = TS_per)) + 
+  geom_point()
 
 ```
 2. correlation between year played(AD ex: 2014) and points scored
