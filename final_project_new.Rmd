@@ -68,7 +68,10 @@ top_25_to_so_2018
 
 #need to filter for fr,so,and juniors in 2019-2020
 
-
+#sampling years, need years 2019,2020,2021
+new_bb %>%
+  group_by(year) %>%
+  summarize(n=n())
 ```
 
 ```{r}
@@ -109,6 +112,81 @@ top_25_fr_2017 %>%
 
 ```
 2. correlation between year played(AD ex: 2014) and points scored
+```{r}
+#graph of pts attempted vs percentage made
+top_25_fr_2017 %>%
+  filter(GP > 20 & Min_per > 50) %>%
+  ggplot(aes(x = twoPA, y = twoP_per)) + 
+  geom_point()
+
+top_25_fr_2017 %>%
+  filter(GP > 20 & Min_per > 50) %>%
+  arrange(desc(twoP_per))
+```
+
+```{r freshman ballers dat}
+top_25_fr_2017 %>%
+  filter(GP > 20 & Min_per > 50) %>%
+  filter(Min_per > 59.9 & AST_per > 20 ) %>%
+  arrange(desc(AST_per)) %>%
+  group_by(role) %>%
+  summarize(n=n())
+
+top_25_fr_2017 %>%
+  filter(GP > 20 & Min_per > 50) %>%
+  arrange(desc(AST_per)) %>%
+  group_by(role) %>%
+  summarize(n=n())
+
+#same code as above without the summary
+#working w/top 5 scoring/point guards
+top_25_fr_2017 %>%
+filter(GP > 20 & Min_per > 50) %>%
+filter(role == "Combo G" | role == "Scoring PG") %>%
+filter(Min_per > 59.9) %>%
+arrange(desc(AST_per))
+
+#working with top 5 
+top_25_fr_2017 %>%
+filter(GP > 20 & Min_per > 50) %>%
+filter(role == "Combo G" | role == "Scoring PG") %>%
+filter(Min_per > 59.9) %>%
+arrange(desc(AST_per))
+```
+
+```{r freshman ballers plot}
+top_25_fr_2017 %>%
+  filter(GP > 20 & Min_per > 50) %>%
+  ggplot(aes(x = twoP_per,y = TP_per)) + 
+  geom_point() + 
+  geom_text(aes(label = player),size = 4,ljust = .25)
+
+top_25_fr_2017 %>%
+  filter(GP > 20 & Min_per > 50) %>%
+  filter(role == "Combo G" | role == "Scoring PG") %>%
+  filter(Min_per > 59.9 & AST_per > 20 ) %>%
+  ggplot(aes(x = twoP_per,y = TP_per)) + 
+  geom_point() + 
+  geom_text(aes(label = player),size = 4,ljust = .25)
+```
+
+```{r fresh_soph baller stats}
+#pg/sg
+top_25_to_so_2018 %>%
+  filter(GP > 20 & Min_per > 50) %>%
+  filter(role == "Combo G" | role == "Scoring PG") %>%
+  filter(Min_per > 59.9 & AST_per > 20 )
+
+#Powerforward / center
+top_25_to_so_2018 %>%
+  filter(GP > 20 & Min_per > 50) %>%
+  filter(role == "C" | role == "PF/C") %>%
+  filter(Min_per > 59.9)
+
+
+
+
+```
 3. Correlation between position and points scored(barplot) group-by(team), facet year
 ```{r}
 bb_dat %>%
