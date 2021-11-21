@@ -27,7 +27,7 @@ Cleaned data to make easier to work with:
 ```{r data cleanup}
 new_bb = bb_dat %>%
   rename(role = X, player = player_name) %>%
-  filter(year > 2016) %>%
+  filter(year > 2018) %>%
   select(!ht & !dunksmade & !dunksmiss.dunksmade
          & !dunksmade..dunksmade.dunksmiss.
          & !type & !num & !pid & !pick & !pfr
@@ -51,13 +51,14 @@ Creating joined frame to work with top 25 ranked schools:
 top_25s = right_join(new_bb,new_ranks)
 ```
 
-In order to create a dream team for the 2022 season we must look at freshman in 2017(-2018), freshman and sophmores in 2018(-2019), and freshman, sophmore, and juniors in 2019(-2020)
+In order to create a dream team for the 2022 season we must look at freshman in 2018-2019, freshman and sophmores in 2019-2020, and freshman, sophmore, and juniors in 2020-2021
 ```{r dream team filter}
 #filters for freshman in 2017-2018 season
-top_25_fr_2017 = top_25s %>%
-  filter(yr == 'Fr' & year == 2017)
+top_25_fr_2019 = top_25s %>%
+  filter(yr == 'Fr' & year == 2019)
 
-top_25_fr_2017
+top_fr_role_g = top_25_fr_2019 %>%
+  filter(role == "")
 
 #filters for freshman and sophmores in 2018-2019 season
 top_25_to_so_2018 = top_25s %>%
@@ -125,9 +126,14 @@ top_25_fr_2017 %>%
 ```
 
 ```{r freshman ballers dat}
-top_25_fr_2017 %>%
+top_fr_2017_guards = top_25_fr_2017 %>%
   filter(GP > 20 & Min_per > 50) %>%
-  filter(Min_per > 59.9 & AST_per > 20 ) %>%
+  filter(role == "Combo G" | role == "Scoring PG"
+         | role == "Wing G")
+
+top_25_fr_2019 %>%
+  filter(GP > 20 & Min_per > 50) %>%
+  filter(Min_per > 59.9) %>%
   arrange(desc(AST_per)) %>%
   group_by(role) %>%
   summarize(n=n())
@@ -140,18 +146,14 @@ top_25_fr_2017 %>%
 
 #same code as above without the summary
 #working w/top 5 scoring/point guards
-top_25_fr_2017 %>%
-filter(GP > 20 & Min_per > 50) %>%
-filter(role == "Combo G" | role == "Scoring PG") %>%
-filter(Min_per > 59.9) %>%
-arrange(desc(AST_per))
+top_fr_2017_guards %>%
+  filter(Min_per > 59.9) %>%
+  arrange(desc(AST_per))
 
 #working with top 5 
-top_25_fr_2017 %>%
-filter(GP > 20 & Min_per > 50) %>%
-filter(role == "Combo G" | role == "Scoring PG") %>%
-filter(Min_per > 59.9) %>%
-arrange(desc(AST_per))
+top_fr_2017_guards %>%
+  filter(Min_per > 59.9) %>%
+  arrange(desc(AST_per))
 ```
 
 ```{r freshman ballers plot}
@@ -161,9 +163,7 @@ top_25_fr_2017 %>%
   geom_point() + 
   geom_text(aes(label = player),size = 4,ljust = .25)
 
-top_25_fr_2017 %>%
-  filter(GP > 20 & Min_per > 50) %>%
-  filter(role == "Combo G" | role == "Scoring PG") %>%
+top_25_fr_2017_top_guards %>%
   filter(Min_per > 59.9 & AST_per > 20 ) %>%
   ggplot(aes(x = twoP_per,y = TP_per)) + 
   geom_point() + 
