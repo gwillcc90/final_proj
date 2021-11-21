@@ -102,46 +102,16 @@ top_2jnr_role_pfC_2020 = top_25_2jnr_2021 %>%
 
 
 ```
-#need to filter for fr,so,and juniors in 2019-2020
 
-#sampling years, need years 2019,2020,2021
-new_bb %>%
-  group_by(year) %>%
-  summarize(n=n())
-```
-
-```{r}
-
-top_25s %>% #number of players from each school
-  group_by(team) %>%
-  summarize(n=n(),
-            n_players = n_distinct(player))
-
-#looking at top offensive ratings
-top_25s %>%
-  arrange(desc(Ortg)) %>%
-  filter(yr == "Fr", year == 2017)
-
-# Duke U twoPOintAttem v percentage
-new_bb %>%
-  rename(pos = X) %>%
-  select(team, pos) %>%
-  filter(team == "Duke" & !pos == '') %>%
-  group_by(pos) %>%
-  summarize(n=n())
-  ggplot(aes(x = twoPA,y=twoP_per)) + geom_point() +
-  facet_wrap(~year)
-  
-```
 
 1. Correlation between year (freshman, sophmore, etc) and stats
 ```{r}
-top_25_fr_2017 %>%
+top_25_fr_2019 %>%
   filter(GP > 20 & Min_per > 50) %>%
   ggplot(aes(x = twoPA, y = twoP_per)) + 
   geom_point()
 
-top_25_fr_2017 %>%
+top_25_fr_2019 %>%
   filter(GP > 20 & Min_per > 50) %>%
   ggplot(aes(x = ORB_per, y = TS_per)) + 
   geom_point()
