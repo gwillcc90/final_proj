@@ -119,46 +119,7 @@ top_25_fr_2019 %>%
 
 ```
 2. correlation between year played(AD ex: 2014) and points scored
-```{r}
-#graph of pts attempted vs percentage made
-top_25_fr_2017 %>%
-  filter(GP > 20 & Min_per > 50) %>%
-  ggplot(aes(x = twoPA, y = twoP_per)) + 
-  geom_point()
 
-top_25_fr_2017 %>%
-  filter(GP > 20 & Min_per > 50) %>%
-  arrange(desc(twoP_per))
-```
-
-```{r freshman ballers dat}
-top_fr_2017_guards = top_25_fr_2017 %>%
-  filter(GP > 20 & Min_per > 50) %>%
-  filter(role == "Combo G" | role == "Scoring PG"
-         | role == "Wing G")
-
-top_25_fr_2019 %>%
-  arrange(desc(AST_per)) %>%
-  group_by(role) %>%
-  summarize(n=n())
-
-top_25_fr_2017 %>%
-  filter(GP > 20 & Min_per > 50) %>%
-  arrange(desc(AST_per)) %>%
-  group_by(role) %>%
-  summarize(n=n())
-
-#same code as above without the summary
-#working w/top 5 scoring/point guards
-top_fr_2017_guards %>%
-  filter(Min_per > 59.9) %>%
-  arrange(desc(AST_per))
-
-#working with top 5 
-top_fr_2017_guards %>%
-  filter(Min_per > 59.9) %>%
-  arrange(desc(AST_per))
-```
 
 ```{r freshman plots}
 #looking at freshman playing most games and scoring highest
