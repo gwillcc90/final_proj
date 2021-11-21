@@ -34,17 +34,11 @@ new_bb = bb_dat %>%
          & !type & !num & !pid & !pick & !pfr
          & !Rec.Rank & !conf)
 
-glimpse(new_bb)
 
 #rename school to team to match new_bb
 new_ranks = school_dat %>%
   rename(team = school)
 
-glimpse(new_ranks)
-
-# reminder to remove na data
-# new_bb %>%
-#   filter(is.na())
 ```
 
 Creating joined frame to work with top 25 ranked schools:
