@@ -52,21 +52,56 @@ top_25s = right_join(new_bb,new_ranks)
 ```
 
 In order to create a dream team for the 2022 season we must look at freshman in 2018-2019, freshman and sophmores in 2019-2020, and freshman, sophmore, and juniors in 2020-2021
-```{r dream team filter}
+```{r freshman 2019 filters}
 #filters for freshman in 2017-2018 season
 top_25_fr_2019 = top_25s %>%
   filter(yr == 'Fr' & year == 2019)
 
+#top guards
 top_fr_role_g = top_25_fr_2019 %>%
-  filter(role == "")
+    filter(role == "Combo G" | role == "Scoring PG"
+         | role == "Wing G" | role == "Pure PG")
 
+#top powerforwards and centers
+top_fr_role_pfC = top_25_fr_2019 %>%
+      filter(role == "PF/C" | role == "C"
+         | role == "Wing F" | role == "Stretch 4")
+``` 
+
+```{r fresh_soph_2020 filters}
 #filters for freshman and sophmores in 2018-2019 season
-top_25_to_so_2018 = top_25s %>%
-  filter(yr == "Fr" & year == 2018
-         | yr == "So" & year == 2018)
+top_25_2soph_2020 = top_25s %>%
+  filter(yr == "Fr" & year == 2020
+         | yr == "So" & year == 2020)
 
-top_25_to_so_2018
+#top guards
+top_2soph_role_g_2020 = top_25_2soph_2020 %>%
+    filter(role == "Combo G" | role == "Scoring PG"
+         | role == "Wing G" | role == "Pure PG")
 
+#top powerforwards/center
+top_2soph_role_pfC_2020 = top_25_2soph_2020 %>%
+      filter(role == "PF/C" | role == "C"
+         | role == "Wing F" | role == "Stretch 4")
+```
+
+```{r to juniors 2021}
+#freshman, sophmore, juniors in 2020-2021 season
+top_25_2jnr_2021 = top_25s %>%
+  filter(!yr == "Sr")
+
+#top guards
+top_2jnr_role_g_2021 = top_25_2jnr_2021 %>%
+    filter(role == "Combo G" | role == "Scoring PG"
+         | role == "Wing G" | role == "Pure PG")
+
+#top powerforwards/center
+top_2jnr_role_pfC_2020 = top_25_2jnr_2021 %>%
+      filter(role == "PF/C" | role == "C"
+         | role == "Wing F" | role == "Stretch 4")
+
+
+```
 #need to filter for fr,so,and juniors in 2019-2020
 
 #sampling years, need years 2019,2020,2021
@@ -132,8 +167,6 @@ top_fr_2017_guards = top_25_fr_2017 %>%
          | role == "Wing G")
 
 top_25_fr_2019 %>%
-  filter(GP > 20 & Min_per > 50) %>%
-  filter(Min_per > 59.9) %>%
   arrange(desc(AST_per)) %>%
   group_by(role) %>%
   summarize(n=n())
