@@ -18,6 +18,7 @@ library(readxl)
 ```{r import data}
 bb_dat = read.csv("CollegeBasketballPlayers2009-2021.csv")
 school_dat = read_excel("bb_school_ranks.xlsx")
+
 ```
 
 Cleaned data to make easier to work with:
@@ -159,46 +160,25 @@ top_fr_2017_guards %>%
   arrange(desc(AST_per))
 ```
 
-```{r freshman ballers plot}
-top_25_fr_2017 %>%
+```{r freshman plots}
+#looking at freshman playing most games and scoring highest
+top_25_fr_2019 %>%
   filter(GP > 20 & Min_per > 50) %>%
   ggplot(aes(x = twoP_per,y = TP_per)) + 
   geom_point() + 
   geom_text(aes(label = player),size = 4,ljust = .25)
 
-top_25_fr_2017_top_guards %>%
+top_fr_role_g %>%
   filter(Min_per > 59.9 & AST_per > 20 ) %>%
   ggplot(aes(x = twoP_per,y = TP_per)) + 
   geom_point() + 
   geom_text(aes(label = player),size = 4,ljust = .25)
+
 ```
-
-```{r fresh_soph baller stats}
-#pg/sg
-top_25_to_so_2018 %>%
-  filter(GP > 20 & Min_per > 50) %>%
-  filter(role == "Combo G" | role == "Scoring PG") %>%
-  filter(Min_per > 59.9 & AST_per > 20 )
-
-#Powerforward / center
-top_25_to_so_2018 %>%
-  filter(GP > 20 & Min_per > 50) %>%
-  filter(role == "C" | role == "PF/C") %>%
-  filter(Min_per > 59.9)
-
-
-
 
 ```
 3. Correlation between position and points scored(barplot) group-by(team), facet year
-```{r}
-bb_dat %>%
-  rename(pos = X) %>%
-  filter(team == "Duke" | team == "Abilene Christian") %>%
-  group_by(pos) %>%
-  summarize(pts_scd = sum(FTM,2*twoPM,3*TPM, na.rm = True))
-
-```
 4. Correlation between rebounds(offense and def) position, and points scored (continuous)
-5.
-6. Create a dream team?
+5. Look at averages for all players and see which freshman stick out
+6. filter players not appearing in latter years
+7. Look at who improves throughout the years
