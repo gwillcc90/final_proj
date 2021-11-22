@@ -10,8 +10,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+install.packages('corrplot')
 library(tidyverse)
+library(dplyr)
+library(GGally)
 library(ggplot2)
+library(corrplot)
+library(RColorBrewer)
+library(stringr)
 library(readxl)
 ```
 
@@ -43,24 +49,67 @@ new_ranks = school_dat %>%
 
 Creating joined frame to work with top 25 ranked schools:
 ```{r joined}
-top_25s = right_join(new_bb,new_ranks)
+top_25s = right_join(new_bb,new_ranks) %>%
+  relocate(college_year = yr, year, role, .before = GP)
 ```
 
 In order to create a dream team for the 2022 season we must look at freshman in 2018-2019, freshman and sophmores in 2019-2020, and freshman, sophmore, and juniors in 2020-2021
 ```{r freshman 2019 filters}
 #filters for freshman in 2017-2018 season
 top_25_fr_2019 = top_25s %>%
-  filter(yr == 'Fr' & year == 2019)
+  filter(college_year == 'Fr' & year == 2019)
 
+### guard data filters
 #top guards
 top_fr_role_g = top_25_fr_2019 %>%
     filter(role == "Combo G" | role == "Scoring PG"
          | role == "Wing G" | role == "Pure PG")
 
+#guard numeric data
+top_fr_role_g_numdat = top_fr_role_g %>%
+  select(-c(1:6,29,30,35,39,41:43,45,46))
+
+#guard percentage data
+top_fr_role_g_perdat = top_fr_role_g_numdat %>%
+  select(contains("per")) %>%
+  rename_with(~str_replace(., '_per',' %'))
+
+#guard cont dat
+top_fr_role_g_contdat = top_fr_role_g_perdat %>%
+  select(-contains("per"))
+
+#guard cat dat
+top_fr_role_g_catdat = top_25_fr_2019[,1:6]
+###
+
+
+
+### powerforward/center data filters
 #top powerforwards and centers
 top_fr_role_pfC = top_25_fr_2019 %>%
       filter(role == "PF/C" | role == "C"
          | role == "Wing F" | role == "Stretch 4")
+
+#PfC num data
+top_fr_role_PfC_numdat = top_fr_role_pfC %>%
+  select(-c(1:6,29,30,35,39,41:43,45,46))
+
+#PfC percentage dat
+top_fr_role_PfC_perdat = top_fr_role_PfC_numdat %>%
+  select(contains("per")) %>%
+  rename_with(~str_replace(., '_per',' %'))
+
+#PfC cont dat
+top_fr_role_PfC_contdat = top_fr_role_PfC_perdat %>%
+  select(-contains("per"))
+
+corrplot(cor(top_fr_role_PfC_contdat), type="upper", order="hclust",
+         col=brewer.pal(n=8, name="RdYlBu"))
+
+#PfC cat dat
+top_fr_role_PfC_catdat = top_25_fr_2019[,1:6]
+###
+
 ``` 
 
 ```{r fresh_soph_2020 filters}
@@ -111,6 +160,8 @@ top_25_fr_2019 %>%
   ggplot(aes(x = ORB_per, y = TS_per)) + 
   geom_point()
 
+top_25_fr_2019 %>%
+  filter(team == "Duke)")
 ```
 2. correlation between year played(AD ex: 2014) and points scored
 
@@ -137,3 +188,5 @@ top_fr_role_g %>%
 5. Look at averages for all players and see which freshman stick out
 6. filter players not appearing in latter years
 7. Look at who improves throughout the years
+filter for players who only play to junior year
+
