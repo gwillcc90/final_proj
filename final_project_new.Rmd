@@ -17,7 +17,7 @@ library(readxl)
 
 ```{r import data}
 bb_dat = read.csv("CollegeBasketballPlayers2009-2021.csv")
-school_dat = read_excel("bb_school_ranks.xlsx")
+#school_dat = read_excel("bb_school_ranks.xlsx")
 ```
 
 Cleaned data to make easier to work with:
@@ -199,3 +199,16 @@ bb_dat %>%
 4. Correlation between rebounds(offense and def) position, and points scored (continuous)
 5.
 6. Create a dream team?
+```{r}
+# full_data after cleaning the unusefull variables and missing values
+data <- data %>% relocate(college_year = yr, year, role= X, .before = GP) %>% filter(year!=2009) %>% select(-32,35:46) %>% na.omit()
+# only continuous data
+numeric_data <- data[,7:50]
+# only categorical data
+categorical_data <- data[,1:6]
+
+corrplot(cor(numeric_data), type="upper", order="hclust",
+         col=brewer.pal(n=8, name="RdYlBu"))
+
+```
+
