@@ -199,15 +199,54 @@ bb_dat %>%
 4. Correlation between rebounds(offense and def) position, and points scored (continuous)
 5.
 6. Create a dream team?
-```{r}
-# full_data after cleaning the unusefull variables and missing values
-data <- data %>% relocate(college_year = yr, year, role= X, .before = GP) %>% filter(year!=2009) %>% select(-32,35:46) %>% na.omit()
-# only continuous data
-numeric_data <- data[,7:50]
-# only categorical data
-categorical_data <- data[,1:6]
 
-corrplot(cor(numeric_data), type="upper", order="hclust",
+
+Son's part
+```{r}
+library(tidyverse)
+library(dplyr)
+library(GGally)
+library(ggplot2)
+library(corrplot)
+library(RColorBrewer)
+library(stringr)
+
+```
+
+
+```{r}
+data <- read.csv('Basketball.csv')
+str(data)
+```
+
+
+
+Split the data into several data frame based on variable's types for different use for later analysis and visualization: continuous data and categorical data, full_data after cleaning the unusefull variables and missing values
+
+
+```{r}
+
+# full_data after cleaning the unusefull variables and missing values
+data <- data %>% relocate(college_year = yr, year, role= X, .before = GP) %>% filter(year!=2009) %>%  na.omit()
+
+```
+
+
+```{r}
+# numeric data
+numeric_data <- data %>% select(-c(1:6,29,30,35,39,41:43,45,46))
+#percentage data
+per_data <- numeric_data %>% select(contains("per")) %>% rename_with(~str_replace(., '_per',' %'))
+#continuous data
+continuous_data <- numeric_data%>% select(-contains("per"))
+#categorical data
+categorical_data <- data[,1:6]
+```
+
+Use correlation plot to see how all continuous variables correlated to each other
+
+```{r}
+corrplot(cor(continuous_data), type="upper", order="hclust",
          col=brewer.pal(n=8, name="RdYlBu"))
 
 ```
