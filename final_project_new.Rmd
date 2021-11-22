@@ -199,6 +199,7 @@ bb_dat %>%
 4. Correlation between rebounds(offense and def) position, and points scored (continuous)
 5.
 6. Create a dream team?
+<<<<<<< HEAD
 
 
 Son's part
@@ -248,6 +249,3 @@ Use correlation plot to see how all continuous variables correlated to each othe
 ```{r}
 corrplot(cor(continuous_data), type="upper", order="hclust",
          col=brewer.pal(n=8, name="RdYlBu"))
-
-```
-
