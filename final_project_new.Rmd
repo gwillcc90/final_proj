@@ -52,7 +52,13 @@ Creating joined frame to work with top 25 ranked schools:
 top_25s = right_join(new_bb,new_ranks) %>%
   relocate(college_year = yr, year, role, .before = GP)
 
-#join frames to filter players who played all seasons
+top_25s
+#
+top_25s %>%
+  filter(!college_year == "Sr") %>%
+  add_count(player) %>%
+  filter(n == 3) %>%
+  group_by(player)
 ```
 
 In order to create a dream team for the 2022 season we must look at freshman in 2018-2019, freshman and sophmores in 2019-2020, and freshman, sophmore, and juniors in 2020-2021
@@ -94,13 +100,26 @@ top_fr_PfC %>%
   geom_violin()
 
 top_fr_PfC %>%
+  arrange(desc(DRB_per,twoP_per)) %>%
+  slice(1:5) %>%
   ggplot(aes(x = DRB_per,y = twoP_per)) +
   geom_point() +
-  geom_smooth()
+  geom_smooth() + 
+  geom_text(aes(label=player))
+
+top_fr_PfC %>%
+  arrange(desc(DRB_per,twoP_per)) %>%
+  slice(1:5) %>%
+  ggplot(aes(x = DRB_per,y = twoP_per)) +
+  geom_point() +
+  geom_smooth() + 
+  geom_text(aes(label=player))
+
 
 #filter for top DRB percentage and shooting
 top_fr_PfC %>%
-  arrange(desc(DRB_per,twoP_per))
+  arrange(desc(DRB_per,twoP_per)) %>%
+  filter(Min_per > 50)
   
 
 ```
@@ -124,21 +143,23 @@ top_2soph_role_pfC_2020 = top_25_2soph_2020 %>%
 
 ```{r to juniors 2021}
 #freshman, sophmore, juniors in 2020-2021 season
-top_25_2jnr_2021 = top_25s %>%
-  filter(!yr == "Sr")
 
 #top guards
-top_2jnr_role_g_2021 = top_25_2jnr_2021 %>%
-    filter(role == "Combo G" | role == "Scoring PG"
+top_2jnr_guards = top_25s %>%
+  filter(!yr == "Sr") %>%
+  filter(role == "Combo G" | role == "Scoring PG"
          | role == "Wing G" | role == "Pure PG")
 
 #top powerforwards/center
-top_2jnr_role_pfC_2020 = top_25_2jnr_2021 %>%
-      filter(role == "PF/C" | role == "C"
+top_2jnr_PfC = top_25s %>%
+  filter(!yr == "Sr") %>%
+  filter(role == "PF/C" | role == "C"
          | role == "Wing F" | role == "Stretch 4")
 
 
 ```
+
+
 
 
 1. Correlation between year (freshman, sophmore, etc) and stats
