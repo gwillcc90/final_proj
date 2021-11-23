@@ -15,49 +15,144 @@ library(ggplot2)
 library(corrplot)
 library(RColorBrewer)
 library(stringr)
-
+library(readxl)
+library(ggrepel)
 ```
 
 
 ```{r}
-data <- read.csv('Basketball.csv')
-str(data)
-```
-
-
-
-Split the data into several data frame based on variable's types for different use for later analysis and visualization: continuous data and categorical data, full_data after cleaning the unusefull variables and missing values
-
-
-```{r}
-
+bb_dat <- read.csv('CollegeBasketballPlayers2009-2021.csv')
+rank_data <- read_excel("bb_school_ranks.xlsx")
 # full_data after cleaning the unusefull variables and missing values
-data <- data %>% relocate(college_year = yr, year, role= X, .before = GP) %>% filter(year!=2009) %>%  na.omit()
+bb_dat <- bb_dat %>% select(-c(29,30,35,39,41:43,45,46)) %>% filter(year!=2009) %>% rename (college_year = yr, role = X ) 
+# %>% rename_with(~str_replace(., '_per',' %'))
+top_25s = right_join(bb_dat,rank_data) %>% relocate(college_year , year, role,rank, .before = GP)
+```
+
+'porpag' 
+'dporpag'
+eFG_per:  Effective field goal %: captures scoring efficiency per field goal attempt
+TS_per : True shooting % capture the effect of shooting free throws
+Box Plus Minus
+Minutes played [MP];
+Team minutes played [TeMP];
+Game played [GP];
+Offensive Rebound Percentage [OR%];
+Defensive Rebound Percentage [DR%];
+Total Rebound Percentage [TR%];
+Steal Percentage [ST%];
+Block Percentage [BLK%];
+Assist Percentage [Ast%];
+Usage Percentage [Usg%];
+Turnover Percentage/Ratio [TO%];
+
+
+
+How each position attribute in to gaining points
+```{r}
+bb_dat$role[bb_dat$role == ""] <- NA
+bb_dat %>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) +
+  geom_boxplot(aes(na.rm=T)) + theme_linedraw() + 
+  xlab("Role") + ylab("Points")
+
+bb_dat  %>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) + 
+  geom_boxplot(aes(x=role,y=pts,fill=role,na.rm=T)) + 
+  geom_text_repel(data = subset(bb_dat, pts >= 26), aes(label = player_name))+theme_linedraw() +
+  xlab("Role") + 
+  ylab("Points")  
 
 ```
+
+AST % vs eFG by college year. Should we consider Freshman rather than Senior? 
+
+```{r}
+# Top 50 Assistant percentage  vs college year
+
+bb_dat %>% slice_max(AST_per, n=50) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr") %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ theme_linedraw() + 
+  xlab("College Year") + 
+  ylab("Count")
+
+# Top 50 Effective Field Goal vs college year
+bb_dat %>% slice_max(eFG, n=50) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr") %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ theme_linedraw() + 
+  xlab("College Year") + 
+  ylab("Count")
+
+# AST % vs eFG by college year
+top_25s %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr") %>% ggplot(aes(x=AST_per,y = eFG)) +
+  geom_point(aes(color= college_year,alpha=0.5))+
+  theme_linedraw() +
+  xlab("Assistent Percentage") + 
+  ylab("Effective Field Goal")
+```
+Who is the best offensive player?
+
+```{r}
+#any(is.na(bb_dat$obpm))
+
+#Relationship between Offensive Box Plus/minus vs points
+bb_dat $pts[bb_dat$pts == ""] <- NA
+bb_dat %>% na.omit() %>% ggplot(aes(x=pts,y=obpm))+ 
+  geom_smooth(se = F) +  
+  theme_light() + 
+  xlab("Points") + ylab(" Offensive Box Plus/Minus")
+
+
+# How is the relationship between assistance percentage with Guard Positions
+bb_dat %>% ggplot(aes(x=role,y=AST_per))+ 
+  geom_col() +  
+  theme_minimal()+
+  xlab("Player Role") + 
+  ylab(" Accumulated Assistent Percentage")
+
+
+
+# Offensive Rating vs Points among players have 100 % assistance percentage
+bb_dat %>% filter(AST_per == 100, Ortg!= 0, pts!=0) %>% 
+  ggplot(aes(x= Ortg, y= pts))+ 
+  geom_point() + 
+  geom_text (hjust = 0, nudge_x = 0.05,aes(label= player_name, colour = role))+
+  theme_light()+
+  xlab("Offensive Rate") + 
+  ylab("Points")
+```
+
 
 
 ```{r}
-# numeric data
-numeric_data <- data %>% select(-c(1:6,29,30,35,39,41:43,45,46))
-#percentage data
-per_data <- numeric_data %>% select(contains("per")) %>% rename_with(~str_replace(., '_per',' %'))
-#continuous data
-continuous_data <- numeric_data%>% select(-contains("per"))
-#categorical data
-categorical_data <- data[,1:6]
+
+
 ```
 
-Use correlation plot to see how all continuous variables correlated to each other
+
+The more they contribute on the court, the more points they get ?
+```{r}
+bb_dat $pts[bb_dat$pts == ""] <- NA
+bb_dat %>% na.omit() %>% ggplot(aes(x=pts,y=bpm))+
+  geom_smooth(se = F) +  
+  theme_light() + 
+  xlab("Points") + 
+  ylab("Box Plus/Minus")
+```
+The relationship between Effective Field Goal vs Box Plus/Minus
 
 ```{r}
-corrplot(cor(continuous_data), type="upper", order="hclust",
-         col=brewer.pal(n=8, name="RdYlBu"))
-
+bb_dat$eFG[bb_dat$eFG == ""] <- NA
+bb_dat %>% na.omit() %>% ggplot(aes(x=eFG,y=bpm))+
+  geom_smooth(se = F) + 
+  theme_light() + 
+  xlab("Effective Field Goal") + 
+  ylab("Box Plus/Minus")
 ```
-
-#visualize year of college ~ point
-#group role position & year of college
+The relationship Game played and Effective Field Goal?
+Especially, Power Forward Position seem like  experience is very important to consider selecting players for this position in the dream team for a higher effective field goal
 ```{r}
+bb_dat$eFG[bb_dat$eFG == ""] <- NA
 
+bb_dat %>%  na.omit() %>% ggplot(aes(y=eFG,x=GP))+
+  geom_smooth(aes(colour= role), se=F) +
+  theme_minimal() +
+  xlab("Game Glayed") +
+  ylab("Effective Field Goal")
 ```
+
+
