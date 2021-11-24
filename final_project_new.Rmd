@@ -54,11 +54,10 @@ top_25s = right_join(new_bb,new_ranks) %>%
 
 top_25s
 #
-top_25s %>%
+recurring_players = top_25s %>%
   filter(!college_year == "Sr") %>%
   add_count(player) %>%
-  filter(n == 3) %>%
-  group_by(player)
+  filter(n == 3) 
 ```
 
 In order to create a dream team for the 2022 season we must look at freshman in 2018-2019, freshman and sophmores in 2019-2020, and freshman, sophmore, and juniors in 2020-2021
@@ -141,6 +140,7 @@ top_2soph_role_pfC_2020 = top_25_2soph_2020 %>%
          | role == "Wing F" | role == "Stretch 4")
 ```
 
+
 ```{r to juniors 2021}
 #freshman, sophmore, juniors in 2020-2021 season
 
@@ -164,9 +164,38 @@ top_2jnr_PfC = top_25s %>%
 
 1. Correlation between year (freshman, sophmore, etc) and stats
 ```{r}
+#looking at
+recurring_players %>%
+  filter(GP > 20 & pts > 5) %>%
+  ggplot(aes(x=player,y=pts,fill=role)) + 
+  geom_boxplot(aes(x=player,y=pts,fill=player)) + 
+  theme_linedraw() +
+  xlab("Role") + 
+  ylab("Points")
 ```
-2. correlation between year played(AD ex: 2014) and points scored
 
+
+
+
+
+
+```{r}
+new_bb$role[new_bb$role == ""] <- NA
+new_bb %>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) +
+  geom_boxplot(aes(na.rm=T)) + theme_linedraw() + 
+  xlab("Role") + ylab("Points")
+
+new_bb  %>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) + 
+  geom_boxplot(aes(x=role,y=pts,fill=role,na.rm=T)) + 
+  geom_text_repel(data = subset(bb_dat, pts >= 26), aes(label = player_name))+theme_linedraw() +
+  xlab("Role") + 
+  ylab("Points") 
+
+new_bb %>% slice_max(AST_per, n=50) %>% count(yr) %>% filter(yr == "Fr"|yr =="So"|yr =="Jr"|yr =="Sr") %>% ggplot(aes(x=yr,y = n,fill = yr)) + geom_col()+ theme_linedraw() + 
+  xlab("College Year") + 
+  ylab("Count")
+
+```
 
 ```{r freshman plots}
 #looking at freshman playing most games and scoring highest
