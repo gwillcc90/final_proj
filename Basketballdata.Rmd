@@ -23,7 +23,7 @@ library(ggrepel)
 ```{r}
 bb_dat <- read.csv('CollegeBasketballPlayers2009-2021.csv')
 rank_data <- read_excel("bb_school_ranks.xlsx")
-# full_data after cleaning the unusefull variables and missing values
+# full_data after cleaning the unusefull variables 
 bb_dat <- bb_dat %>% select(-c(29,30,35,39,41:43,45,46)) %>% filter(year!=2009) %>% rename (college_year = yr, role = X ) 
 # %>% rename_with(~str_replace(., '_per',' %'))
 top_25s = right_join(bb_dat,rank_data) %>% relocate(college_year , year, role,rank, .before = GP)
@@ -48,7 +48,7 @@ Turnover Percentage/Ratio [TO%];
 
 
 
-How each position attribute in to gaining points
+How each position attribute into gaining points
 ```{r}
 bb_dat$role[bb_dat$role == ""] <- NA
 bb_dat %>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) +
@@ -64,6 +64,7 @@ bb_dat  %>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) +
 ```
 
 AST % vs eFG by college year. Should we consider Freshman rather than Senior? 
+> for the AST % vs eFG by college year in top 25 teams, if we look at the upper right quadrant where players with high eFG and AST % distributed, we can see most outlier points in this quadrant are mostly freshman and sophomore.
 
 ```{r}
 # Top 50 Assistant percentage  vs college year
@@ -78,10 +79,11 @@ bb_dat %>% slice_max(eFG, n=50) %>% count(college_year) %>% filter(college_year 
   ylab("Count")
 
 # AST % vs eFG by college year
-top_25s %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr") %>% ggplot(aes(x=AST_per,y = eFG)) +
+
+top_25s %>% group_by(player_name) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr", eFG !=0, AST_per!=0 ) %>% ggplot(aes(x=AST_per,y = eFG)) +
   geom_point(aes(color= college_year,alpha=0.5))+
   theme_linedraw() +
-  xlab("Assistent Percentage") + 
+  xlab("Assistant Percentage") + 
   ylab("Effective Field Goal")
 ```
 Who is the best offensive player?
