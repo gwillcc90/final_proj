@@ -63,7 +63,7 @@ bb_dat  %>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) +
 
 ```
 
-AST % vs eFG by college year. Should we consider Freshman rather than Senior? 
+AST % vs eFG by college year. Should we consider Freshman and Sophomore rather than Junior and Senior fro a dream team? 
 > for the AST % vs eFG by college year in top 25 teams, if we look at the upper right quadrant where players with high eFG and AST % distributed, we can see most outlier points in this quadrant are mostly freshman and sophomore.
 
 ```{r}
