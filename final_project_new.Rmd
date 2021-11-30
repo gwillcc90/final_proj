@@ -10,10 +10,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-install.packages('corrplot')
 library(tidyverse)
 library(dplyr)
-library(GGally)
 library(ggplot2)
 library(corrplot)
 library(RColorBrewer)
@@ -38,7 +36,7 @@ new_bb = bb_dat %>%
   select(!ht & !dunksmade & !dunksmiss.dunksmade
          & !dunksmade..dunksmade.dunksmiss.
          & !type & !num & !pid & !pick & !pfr
-         & !Rec.Rank & !conf)
+         & !Rec.Rank)
 
 
 #rename school to team to match new_bb
@@ -54,18 +52,100 @@ top_25s = right_join(new_bb,new_ranks) %>%
 
 top_25s
 #
-recurring_players = top_25s %>%
+top_25s %>%
   filter(!college_year == "Sr") %>%
   add_count(player) %>%
-  filter(n == 3) 
+  filter(n == 3) %>%
+  ggplot(aes(x = player,y = TPA, color=player)) + geom_point()
+```
+1. How many teams in the NCAA
+
+```{r NCAA intro facts}
+#unique teams in NCAA n = 358, all divisions
+new_bb %>%
+  distinct(team) %>%
+  count()
+
+#unique players in NCAA, 8697 in 2018+
+new_bb %>%
+  distinct(player) %>%
+  count()
+
+
+```
+
+```{r free throws}
+new_bb %>%
+  filter(FTA > 80 & FT_per > .8) %>%
+  ggplot(aes(x = FTA,y = FT_per)) +
+  geom_point() + 
+  geom_smooth()+
+  xlab("Free Throw Attempts") +
+  ylab("Free Throw Percentage")+
+  ggtitle("General Free Throw Comparison")
+
+#guards
+new_bb %>%
+  filter(FTA > 80 & FT_per > .8) %>%
+      filter(role == "Combo G" | role == "Scoring PG"
+        | role == "Wing G" | role == "Pure PG") %>%
+  ggplot(aes(x = FTA,y = FT_per)) +
+  geom_point() + 
+  geom_smooth()+
+  xlab("Free Throw Attempts") +
+  ylab("Free Throw Percentage")+
+  ggtitle("Guard Free Throws")
+
+#Centers/Powerforwards
+new_bb %>%
+  filter(FTA > 80 & FT_per > .8) %>%
+  filter(role == "PF/C" | role == "C"
+        | role == "Wing F" | role == "Stretch 4") %>%
+  ggplot(aes(x = FTA,y = FT_per)) +
+  geom_point() + 
+  geom_smooth()+
+  xlab("Free Throw Attempts") +
+  ylab("Free Throw Percentage")+
+  ggtitle("Post Player Free Throws")
+```
+
+```{r ast/tov}
+new_bb %>%
+  filter(GP > 30) %>%
+  ggplot(aes(x = ORB_per,y = DRB_per)) +
+  geom_point() + 
+  geom_smooth()+ 
+  xlab("Offensive Rebound Percentage")+
+  ylab("Defensive Rebound Percentage")+
+  ggtitle("Rebound Comparison")
+
+#Guards
+new_bb %>%
+  filter(GP > 30) %>%
+    filter(role == "Combo G" | role == "Scoring PG"
+        | role == "Wing G" | role == "Pure PG") %>%
+  ggplot(aes(x = ORB_per,y = DRB_per)) +
+  geom_point() + 
+  geom_smooth()+ 
+  xlab("Offensive Rebound Percentage")+
+  ylab("Defensive Rebound Percentage")+
+  ggtitle("Guard Rebound Comparison")
+
+#Center/Powerforwards
+new_bb %>%
+  filter(GP > 30) %>%
+  filter(role == "PF/C" | role == "C"
+        | role == "Wing F" | role == "Stretch 4") %>%
+  ggplot(aes(x = ORB_per,y = DRB_per)) +
+  geom_point() + 
+  geom_smooth()+ 
+  xlab("Offensive Rebound Percentage")+
+  ylab("Defensive Rebound Percentage")+
+  ggtitle("Post Player Rebound Comparison")
 ```
 
 In order to create a dream team for the 2022 season we must look at freshman in 2018-2019, freshman and sophmores in 2019-2020, and freshman, sophmore, and juniors in 2020-2021
 ```{r freshman 2019 filters}
-#filters for freshman in 2017-2018 season
-
-
-
 #top freshman guards
 top_fr_guards = top_25s %>%
   filter(college_year == 'Fr' & year == 2019) %>%
@@ -79,11 +159,7 @@ top_fr_PfC = top_25s %>%
   filter(role == "PF/C" | role == "C"
         | role == "Wing F" | role == "Stretch 4")
 
-
-
-corrplot(cor(top_fr_role_PfC_contdat), type="upper", order="hclust",
-         col=brewer.pal(n=8, name="RdYlBu"))
-
+corrplot(cor(cont_dat),type="upper", order="hclust",col=brewer.pal(n=8, name="RdYlBu"))
 ``` 
 
 ```{r freshman guards plot}
@@ -126,8 +202,8 @@ top_fr_PfC %>%
 ```{r fresh_soph_2020 filters}
 #filters for freshman and sophmores in 2018-2019 season
 top_25_2soph_2020 = top_25s %>%
-  filter(yr == "Fr" & year == 2020
-         | yr == "So" & year == 2020)
+  filter(college_year == "Fr" & year == 2020
+         |college_year == "So" & year == 2020)
 
 #top guards
 top_2soph_role_g_2020 = top_25_2soph_2020 %>%
@@ -164,14 +240,21 @@ top_2jnr_PfC = top_25s %>%
 
 1. Correlation between year (freshman, sophmore, etc) and stats
 ```{r}
-#looking at
+#looking at individual recurring players stats
+
+#use scatterplot to compare individual recurring stats maybe
 recurring_players %>%
-  filter(GP > 20 & pts > 5) %>%
-  ggplot(aes(x=player,y=pts,fill=role)) + 
-  geom_boxplot(aes(x=player,y=pts,fill=player)) + 
+  filter(GP > 20) %>%
+  ggplot(aes(x=player,y=pts)) + 
+  geom_point(aes(x=player,y=pts,color=player)) + 
   theme_linedraw() +
   xlab("Role") + 
-  ylab("Points")
+  ylab("Points") +
+  scale_x_discrete(labels = paste0('p',c(1:9)))
+
+recurring_players %>%
+  filter(player == "Brandon Slater") %>%
+  select(player,pts)
 ```
 
 
@@ -216,6 +299,13 @@ top_fr_role_g %>%
 ```
 3. Correlation between position and points scored(barplot) group-by(team), facet year
 4. Correlation between rebounds(offense and def) position, and points scored (continuous)
+```{r}
+top_25s %>%
+filter(year == 2020) %>%
+  ggplot(aes(x = team,y = FTA)) +
+  geom_bar()
+```
+
 5. Look at averages for all players and see which freshman stick out
 6. filter players not appearing in latter years
 7. Look at who improves throughout the years
