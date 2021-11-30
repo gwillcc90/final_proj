@@ -70,8 +70,6 @@ new_bb %>%
 new_bb %>%
   distinct(player) %>%
   count()
-
-
 ```
 
 ```{r free throws}
@@ -162,8 +160,12 @@ top_25s %>%
 
 ```{r ast/tov}
 top_25s %>%
+  na.omit() %>%
+  filter(ast.tov > 1 & GP > 30) %>%
+  ggplot(aes(x = GP,y = ast.tov))+
+  geom_point()+
+  geom_smooth()
   
-
 ```
 
 In order to create a dream team for the 2022 season we must look at freshman in 2018-2019, freshman and sophmores in 2019-2020, and freshman, sophmore, and juniors in 2020-2021
@@ -274,9 +276,7 @@ recurring_players %>%
   ylab("Points") +
   scale_x_discrete(labels = paste0('p',c(1:9)))
 
-recurring_players %>%
-  filter(player == "Brandon Slater") %>%
-  select(player,pts)
+
 ```
 
 
