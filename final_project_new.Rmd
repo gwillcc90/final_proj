@@ -109,7 +109,7 @@ new_bb %>%
   ggtitle("Post Player Free Throws")
 ```
 
-```{r ast/tov}
+```{r rebound comparison}
 new_bb %>%
   filter(GP > 30) %>%
   ggplot(aes(x = ORB_per,y = DRB_per)) +
@@ -142,6 +142,28 @@ new_bb %>%
   xlab("Offensive Rebound Percentage")+
   ylab("Defensive Rebound Percentage")+
   ggtitle("Post Player Rebound Comparison")
+```
+
+```{r top 10 asts}
+options(scipen = 999)
+top_25s %>%
+  na.omit() %>%
+  group_by(team) %>%
+  summarize(n = sum(ast))%>%
+  arrange(desc(n)) %>%
+  slice(1:10) %>%
+  ggplot()+
+  geom_col(aes(x = team,y = n,fill = team))+
+  xlab("Team")+
+  ylab("Assists")+
+  theme(axis.ticks.x = element_blank(),
+        axis.text.x = element_blank())
+```
+
+```{r ast/tov}
+top_25s %>%
+  
+
 ```
 
 In order to create a dream team for the 2022 season we must look at freshman in 2018-2019, freshman and sophmores in 2019-2020, and freshman, sophmore, and juniors in 2020-2021
