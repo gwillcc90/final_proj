@@ -172,7 +172,7 @@ In order to create a dream team for the 2022 season we must look at freshman in 
 ```{r freshman 2019 filters}
 #top freshman guards
 top_fr_guards = top_25s %>%
-  filter(college_year == 'Fr' & year == 2019) %>%
+  filter(college_year == 'Fr' & year == 2019 & GP > 25) %>%
   filter(role == "Combo G" | role == "Scoring PG"
         | role == "Wing G" | role == "Pure PG")
 
@@ -183,10 +183,10 @@ top_fr_PfC = top_25s %>%
   filter(role == "PF/C" | role == "C"
         | role == "Wing F" | role == "Stretch 4")
 
-corrplot(cor(cont_dat),type="upper", order="hclust",col=brewer.pal(n=8, name="RdYlBu"))
+# corrplot(cor(cont_dat),type="upper", order="hclust",col=brewer.pal(n=8, name="RdYlBu"))
 ``` 
 
-```{r freshman guards plot}
+```{r freshman plots}
 top_fr_guards %>% 
   select(where(is.double))
   
@@ -263,8 +263,12 @@ top_2jnr_PfC = top_25s %>%
 
 
 1. Correlation between year (freshman, sophmore, etc) and stats
+or recurring players and juniors
 ```{r}
 #looking at individual recurring players stats
+recurring_andJuniors = top_25s %>%
+  add_count(player) %>%
+  filter(college_year == "Jr" | n == 3 & GP > 20)
 
 #use scatterplot to compare individual recurring stats maybe
 recurring_players %>%
