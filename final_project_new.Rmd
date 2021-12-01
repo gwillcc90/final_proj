@@ -41,7 +41,9 @@ new_bb = bb_dat %>%
 
 #rename school to team to match new_bb
 new_ranks = school_dat %>%
-  rename(team = school)
+  rename(team = school) %>%
+  add_count(team)%>%
+  rename(appearances = n)
 
 ```
 
@@ -50,13 +52,12 @@ Creating joined frame to work with top 25 ranked schools:
 top_25s = right_join(new_bb,new_ranks) %>%
   relocate(college_year = yr, year, role, .before = GP)
 
-top_25s
-#
+
 top_25s %>%
   filter(!college_year == "Sr") %>%
   add_count(player) %>%
   filter(n == 3) %>%
-  ggplot(aes(x = player,y = TPA, color=player)) + geom_point()
+  unique()
 ```
 1. How many teams in the NCAA
 
@@ -74,7 +75,7 @@ new_bb %>%
 
 ```{r free throws}
 new_bb %>%
-  filter(FTA > 80 & FT_per > .8) %>%
+  filter(FTA > 58 & FT_per > .769) %>%
   ggplot(aes(x = FTA,y = FT_per)) +
   geom_point() + 
   geom_smooth()+
@@ -84,7 +85,7 @@ new_bb %>%
 
 #guards
 new_bb %>%
-  filter(FTA > 80 & FT_per > .8) %>%
+  filter(FTA > 58 & FT_per > .769) %>%
       filter(role == "Combo G" | role == "Scoring PG"
         | role == "Wing G" | role == "Pure PG") %>%
   ggplot(aes(x = FTA,y = FT_per)) +
@@ -96,7 +97,7 @@ new_bb %>%
 
 #Centers/Powerforwards
 new_bb %>%
-  filter(FTA > 80 & FT_per > .8) %>%
+  filter(FTA > 58 & FT_per > .769) %>%
   filter(role == "PF/C" | role == "C"
         | role == "Wing F" | role == "Stretch 4") %>%
   ggplot(aes(x = FTA,y = FT_per)) +
@@ -105,11 +106,14 @@ new_bb %>%
   xlab("Free Throw Attempts") +
   ylab("Free Throw Percentage")+
   ggtitle("Post Player Free Throws")
+
+quantile(new_bb$FT_per,c(.25,.5,.75))
+quantile(new_bb$FTA,c(.25,.5,.75))
 ```
 
 ```{r rebound comparison}
 new_bb %>%
-  filter(GP > 30) %>%
+  filter(GP > 29) %>%
   ggplot(aes(x = ORB_per,y = DRB_per)) +
   geom_point() + 
   geom_smooth()+ 
@@ -119,7 +123,7 @@ new_bb %>%
 
 #Guards
 new_bb %>%
-  filter(GP > 30) %>%
+  filter(GP > 29) %>%
     filter(role == "Combo G" | role == "Scoring PG"
         | role == "Wing G" | role == "Pure PG") %>%
   ggplot(aes(x = ORB_per,y = DRB_per)) +
@@ -131,7 +135,7 @@ new_bb %>%
 
 #Center/Powerforwards
 new_bb %>%
-  filter(GP > 30) %>%
+  filter(GP > 29) %>%
   filter(role == "PF/C" | role == "C"
         | role == "Wing F" | role == "Stretch 4") %>%
   ggplot(aes(x = ORB_per,y = DRB_per)) +
@@ -140,22 +144,71 @@ new_bb %>%
   xlab("Offensive Rebound Percentage")+
   ylab("Defensive Rebound Percentage")+
   ggtitle("Post Player Rebound Comparison")
+
+quantile(new_bb$GP,c(.25,.5,.75))
 ```
 
 ```{r top 10 asts}
 options(scipen = 999)
 top_25s %>%
   na.omit() %>%
+  filter(appearances == 3) %>%
   group_by(team) %>%
   summarize(n = sum(ast))%>%
   arrange(desc(n)) %>%
   slice(1:10) %>%
   ggplot()+
   geom_col(aes(x = team,y = n,fill = team))+
+  ggtitle("Total Assist for Team with 3 appearances")+
   xlab("Team")+
   ylab("Assists")+
   theme(axis.ticks.x = element_blank(),
         axis.text.x = element_blank())
+  
+top_25s %>%
+  na.omit() %>%
+  filter(appearances == 2)%>%
+  group_by(team) %>%
+  summarize(n = sum(ast)) %>%
+  arrange(desc(n)) %>%
+   slice(1:10) %>%
+  ggplot()+
+  geom_col(aes(x = team,y = n,fill = team))+
+  ggtitle("Total Assist for Team with 2 appearances")+
+  xlab("Team")+
+  ylab("Assists")+
+  theme(axis.ticks.x = element_blank(),
+        axis.text.x = element_blank())
+  
+top_25s %>%
+  na.omit() %>%
+  filter(appearances == 1) %>%
+  group_by(team) %>%
+  summarize(n = sum(ast))%>%
+  arrange(desc(n)) %>%
+   slice(1:10) %>%
+  ggplot()+
+  geom_col(aes(x = team,y = n,fill = team))+
+  ggtitle("Total Assist for Team With 1 Appearance")+
+  xlab("Team")+
+  ylab("Assists")+
+  theme(axis.ticks.x = element_blank(),
+        axis.text.x = element_blank())
+
+#full graph with all 25 teams
+top_25s %>%
+  na.omit() %>%
+  group_by(team) %>%
+  summarize(n = sum(ast))%>%
+  arrange(desc(n)) %>%
+  ggplot()+
+  geom_col(aes(x = team,y = n,fill = team))+
+  ggtitle("Total Assist for all teams")+
+  xlab("Team")+
+  ylab("Assists")+
+  theme(axis.ticks.x = element_blank(),
+        axis.text.x = element_blank())
+  
 ```
 
 ```{r ast/tov}
