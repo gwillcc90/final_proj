@@ -36,7 +36,8 @@ new_bb = bb_dat %>%
   select(!ht & !dunksmade & !dunksmiss.dunksmade
          & !dunksmade..dunksmade.dunksmiss.
          & !type & !num & !pid & !pick & !pfr
-         & !Rec.Rank)
+         & !Rec.Rank) %>%
+  
 
 
 #rename school to team to match new_bb
@@ -156,7 +157,6 @@ top_25s %>%
   group_by(team) %>%
   summarize(n = sum(ast))%>%
   arrange(desc(n)) %>%
-  slice(1:10) %>%
   ggplot()+
   geom_col(aes(x = team,y = n,fill = team))+
   ggtitle("Total Assist for Team with 3 appearances")+
@@ -171,7 +171,6 @@ top_25s %>%
   group_by(team) %>%
   summarize(n = sum(ast)) %>%
   arrange(desc(n)) %>%
-   slice(1:10) %>%
   ggplot()+
   geom_col(aes(x = team,y = n,fill = team))+
   ggtitle("Total Assist for Team with 2 appearances")+
@@ -186,9 +185,8 @@ top_25s %>%
   group_by(team) %>%
   summarize(n = sum(ast))%>%
   arrange(desc(n)) %>%
-   slice(1:10) %>%
   ggplot()+
-  geom_col(aes(x = team,y = n,fill = team))+
+  geom_density(aes(x = n,fill = team))+
   ggtitle("Total Assist for Team With 1 Appearance")+
   xlab("Team")+
   ylab("Assists")+
@@ -196,19 +194,17 @@ top_25s %>%
         axis.text.x = element_blank())
 
 #full graph with all 25 teams
-top_25s %>%
+ast_and_team = top_25s %>%
   na.omit() %>%
   group_by(team) %>%
-  summarize(n = sum(ast))%>%
-  arrange(desc(n)) %>%
-  ggplot()+
-  geom_col(aes(x = team,y = n,fill = team))+
-  ggtitle("Total Assist for all teams")+
-  xlab("Team")+
-  ylab("Assists")+
-  theme(axis.ticks.x = element_blank(),
-        axis.text.x = element_blank())
-  
+  summarize(n = mean(ast))%>%
+  arrange(desc(n)) 
+
+ast_Nteam_rank = full_join(ast_and_team,new_ranks) %>%
+  ggplot() +
+  geom_density(aes(x = n, color = as.factor(appearances)))
+
+ast_Nteam_rank
 ```
 
 ```{r ast/tov}
