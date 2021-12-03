@@ -20,6 +20,12 @@ library(stringr)
 library(readxl)
 ```
 
+We took the data from a kaggle dataset.
+The data is the past decade's NCAA college basketball data filtered down to the last 3 seasons 18-19,19-20,20-21 for simplicity.
+Our goal was to look at data trends based on role and academic status (being freshman, sophmores, juniors, and seniors)
+
+
+
 ```{r import data}
 bb_dat = read.csv("CollegeBasketballPlayers2009-2021.csv")
 school_dat = read_excel("bb_school_ranks.xlsx")
@@ -56,16 +62,17 @@ new_ranks = school_dat %>%
 
 Creating joined frame to work with top 25 ranked schools:
 ```{r joined} 
-#46 teams have been in top 25 from (2018-)2019-2021
-top_25s = right_join(new_bb,new_ranks) %>%
-  relocate(college_year = yr, year, role, .before = GP)
-
 #creating vector for top team in whole dataset
-top_teams_vector = top_25s$team
+top_teams_vector = new_ranks$team
 
 #recreating new_bb filter to show if player in top team
 new_bb = new_bb %>%
   mutate(top_team = ifelse(team %in% top_teams_vector,T,F))
+
+#46 teams have been in top 25 from (2018-)2019-2021
+top_25s = inner_join(new_bb,new_ranks) %>%
+  relocate(college_year = yr, year, role, .before = GP)
+
 
 ```
 1. How many teams in the NCAA
@@ -194,49 +201,22 @@ top_25s %>%
   theme(axis.ticks.x = element_blank(),
         axis.text.x = element_blank())
   
-top_25s %>%
-  na.omit() %>%
-  filter(appearances == 2)%>%
-  group_by(team) %>%
-  summarize(n = sum(ast)) %>%
-  arrange(desc(n)) %>%
-  ggplot()+
-  geom_col(aes(x = team,y = n,fill = team))+
-  ggtitle("Total Assist for Team with 2 appearances")+
-  xlab("Team")+
-  ylab("Assists")+
-  theme(axis.ticks.x = element_blank(),
-        axis.text.x = element_blank())
-  
-top_25s %>%
-  na.omit() %>%
-  filter(appearances == 1) %>%
-  group_by(team) %>%
-  summarize(n = sum(ast))%>%
-  arrange(desc(n)) %>%
-  ggplot()+
-  geom_density(aes(x = n,fill = team))+
-  ggtitle("Total Assist for Team With 1 Appearance")+
-  xlab("Team")+
-  ylab("Assists")+
-  theme(axis.ticks.x = element_blank(),
-        axis.text.x = element_blank())
 
-#full graph with all 25 teams
-ast_and_team = top_25s %>%
-  group_by(team) %>%
-  summarize(n = mean(ast))%>%
-  arrange(desc(n)) 
+some_new_bb = new_bb %>%
+  filter(top_team == T) %>%
+  left_join(new_ranks)
 
-ast_Nteam_rank = full_join(ast_and_team,new_ranks) %>%
+some_new_bb %>%
+  group_by(team) %>%
+  summarize(n_ast = mean(ast)) %>%
+  left_join(some_new_bb) %>%
   na.omit() %>%
   ggplot() +
-  geom_density(aes(x = n, color = as.factor(appearances)))
+  geom_density(aes(x = n_ast, color = as.factor(appearances)))+
+  ggtitle(label = "Mean Assists of All Teams \nAppearing in the top 25",
+        subtitle = "independent of season rank \nfor all seasons")+
+  labs(color = "Appearances in Top 25")
 
-ast_Nteam_rank
-
-full_join(ast_and_team,new_ranks)%>%
-  na.omit()
 ```
 
 ```{r ast/tov}
@@ -415,6 +395,4 @@ filter(year == 2020) %>%
 
 5. Look at averages for all players and see which freshman stick out
 6. filter players not appearing in latter years
-7. Look at who improves throughout the years
-filter for players who only play to junior year
 
