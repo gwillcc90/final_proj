@@ -18,6 +18,7 @@ library(RColorBrewer)
 library(stringr)
 library(readxl)
 library(ggrepel)
+library(ggpubr)
 ```
 ## Introduction:
 
@@ -110,20 +111,20 @@ AST % vs eFG by college year. Should we consider Freshman and Sophomore rather t
 ```{r}
 # Top 50 Assistant percentage  vs college year
 
-bb_dat %>% slice_max(AST_per, n=100) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr") %>% mutate(college_year = recode(college_year, "Fr"= "Freshman","So" = "Sorphomore", "Jr" = "Junior", "Sr" = "Senior")) %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ 
+a<- bb_dat %>% slice_max(AST_per, n=100) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr") %>% mutate(college_year = recode(college_year, "Fr"= "Freshman","So" = "Sorphomore", "Jr" = "Junior", "Sr" = "Senior")) %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ 
   labs(fill = "College Year\n")+
   xlab("College Year") + 
   ylab("Count")+ ggtitle("Top 50 Assistant Percentage by College Year")+theme_linedraw() 
 
 # Top 50 Effective Field Goal vs college year
-bb_dat %>% slice_max(eFG, n=100) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr")  %>% mutate(college_year = recode(college_year, "Fr"= "Freshman","So" = "Sorphomore", "Jr" = "Junior", "Sr" = "Senior")) %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ theme_linedraw() + 
+b<-bb_dat %>% slice_max(eFG, n=100) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr")  %>% mutate(college_year = recode(college_year, "Fr"= "Freshman","So" = "Sorphomore", "Jr" = "Junior", "Sr" = "Senior")) %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ theme_linedraw() + 
   labs(fill = "College Year\n")+
   xlab("College Year") + 
   ylab("Count") + ggtitle("Top 50 Effective Field Goal by College Year")
 
 # AST % vs eFG by college year
 
-top_25s %>% group_by(player_name) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr", eFG !=0, AST_per!=0 ) %>% ggplot(aes(x=AST_per,y = eFG)) +
+c <- top_25s %>% group_by(player_name) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr", eFG !=0, AST_per!=0 ) %>% ggplot(aes(x=AST_per,y = eFG)) +
   geom_point(aes(color = college_year))+
   facet_wrap(~college_year)+
   labs(color = "College Year\n") +
@@ -131,6 +132,7 @@ top_25s %>% group_by(player_name) %>% filter(college_year == "Fr"|college_year =
   ylab("Effective Field Goal %") + 
   ggtitle("Assistant Percentage vs. Effective Field Goal % \n by college year") + 
   theme_minimal() 
+ggarrange(a,b,c, ncol = 2, nrow = 2)
 
 ```
 
@@ -173,7 +175,7 @@ Block Percentage (BLK%)
 Steal Percentage (STL%)
 
 ```{r}
-bb_dat %>% select(1:2,role, drtg, blk_per,stl_per,DRB_per) %>% na.omit() %>% group_by(role)%>% ggplot( aes(x= DRtg, y = pts, group = role)) + geom_point(aes(col=role, alpha=0.01))+facet_wrap(~role)
+bb_dat %>% select(1:2,role, drtg, blk_per,stl_per,DRB_per) %>% na.omit() %>% group_by(role)%>% ggplot( aes(x= drtg, y = blk_per, group = role)) + geom_point(aes(col=role, alpha=0.01))+ facet_wrap(~role)
 ```
 
 
@@ -231,7 +233,7 @@ slice_max(ast_sum, n = 10) %>%  ggplot(aes(x=ast_sum,y=m))+
 
 
 ```{r free throws}
-bb_dat %>%
+f1<- bb_dat %>%
   filter(FTA > 58 & FT_per > .769) %>%
   ggplot(aes(x = FTA,y = FT_per)) +
   geom_point() + 
@@ -240,7 +242,7 @@ bb_dat %>%
   ylab("Free Throw Percentage")+
   ggtitle("General Free Throw Comparison")
 #guards
-bb_dat %>%
+f2 <- bb_dat %>%
   filter(FTA > 58 & FT_per > .769) %>%
       filter(role == "Combo G" | role == "Scoring PG"
         | role == "Wing G" | role == "Pure PG") %>%
@@ -252,7 +254,7 @@ bb_dat %>%
   ggtitle("Guard Free Throws")
 
 #Centers/Powerforwards
-bb_dat %>%
+f3 <- bb_dat %>%
   filter(FTA > 58 & FT_per > .769) %>%
   filter(role == "PF/C" | role == "C"
         | role == "Wing F" | role == "Stretch 4") %>%
@@ -264,6 +266,7 @@ bb_dat %>%
   ggtitle("Post Player Free Throws")
 #quantile(bb_dat$FT_per,c(.25,.5,.75))+
 #quantile(bb_dat$FTA,c(.25,.5,.75))
+ggarrange(f1,f2,f3, ncol = 3, nrow = 1)
 ```
 ```{r rebound comparison}
 bb_dat %>%
