@@ -8,13 +8,12 @@ output:
     fig_width: 3
   pdf_document: default
 ---
-WHAT IT TAKES
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, message = F, warning = F, echo = F}
 library(tidyverse)
 library(dplyr)
 library(GGally)
@@ -46,8 +45,8 @@ Our goal was to look at data trends based on role and academic status (being fre
 For simplicity we categorize all guard variations as guards, and all the Powerforwards, centers and stretch as post players.
 And because we are in a new season, we will not look at senior players other than in the general graphs
 
-
-```{r import data}
+---
+```{r import data, echo = F}
 bb_dat = read.csv("CollegeBasketballPlayers2009-2021.csv")
 school_dat = read_excel("bb_school_ranks.xlsx")
 
@@ -58,7 +57,7 @@ school_dat = read_excel("bb_school_ranks.xlsx")
 +rename variables to readable, workable names
 +filter to recent 3 years
 +remove less-meaningful variables
-```{r data cleanup}
+```{r data cleanup, echo = F}
 new_bb = bb_dat %>%
   rename(role = X, player = player_name) %>%
   filter(year > 2018) %>%
@@ -86,19 +85,23 @@ new_bb = new_bb %>%
 top_25s = inner_join(new_bb,new_ranks) %>%
   relocate(college_year = yr, year, role, .before = GP)
 ```
-
-How many teams in the NCAA?
-
-```{r NCAA intro facts}
+---
+How many teams are represented in this dataset
+```{r echo = F}
 #unique teams in NCAA n = 358, all divisions
 new_bb %>%
   distinct(team) %>%
   count()
-#unique players in NCAA, 8697 in 2018+
+```
+How many unique players in NCAA 2018+
+```{r echo = F}
 new_bb %>%
   distinct(player) %>%
   count()
-#11 players appearing in all 3 seasons up to 21-22, top 25
+```
+
+How many recurring players from seasons 2018-19+
+```{r echo = F}
 top_25s %>%
   filter(!college_year == "Sr") %>%
   add_count(player) %>%
@@ -107,13 +110,11 @@ top_25s %>%
   summarize(n = n()) %>%
   count()
 ```
+---
 How's relationship between all the varibles?
 
-First , we take a look at how's relationship between all the varibles? 
+First, we take a look at how's relationship between all the varibles? 
 
-## How's relationship between all the varibles?
-
-First , we take a look at how's relationship between all the varibles? 
 
 ```{r}
 numeric_dat <- select_if(son_bb_dat,is.numeric) %>% select(-contains("per"))%>% na.omit()
@@ -123,11 +124,11 @@ corrplot(cor(numeric_dat), type="upper", order="hclust",
 So, we notice a couples negative correlation dbpm/dgbpm/bpm vs drtg, and pfr vs drtg and some postive correlation porpag vs adjoe & obpm, pts vs dreb/dporpag/rimmade/midmade/twoPM/FTM/mp/stops, rimmade/dreb/treb/pts, GP vs stops, stl vs mp. 
 
 
-
+##Visualization
 Sports is a teamwork!Then how to evaluate a good team player, we measure player’s contributions and their impact on the court by BPM (Box Plus/Minus). The more time they contribute on the court, the more points they get. 
 
 
-```{r}
+```{r echo = F}
 son_bb_dat $pts[son_bb_dat$pts == ""] <- NA
 son_bb_dat $role[son_bb_dat$role == ""] <- NA
 son_bb_dat $mp[son_bb_dat$mp == ""] <- NA
@@ -145,6 +146,7 @@ c = son_bb_dat %>% filter(college_year != "Sr") %>% add_count(player_name) %>% f
   xlab("Box Plus Minus") + ylab(" Minutes Played") + ggtitle("Minutes Played vs. Box Plus/Minus")
 ggarrange(a,b,c, ncol = 3, nrow = 1)
 ```
+---
 How each position attribute into gaining points
 ```{r}
 son_bb_dat%>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) + 
@@ -159,7 +161,8 @@ son_bb_dat%>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) +
   xlab("Role") + 
   ylab("Points")  
 ```
-## How  academic status (freshman, sophmores, juniors, and seniors) affect their performance?
+---
+How  academic status (freshman, sophmores, juniors, and seniors) affect their performance?
 
 > for the AST % vs eFG by college year in top 25 teams, if we look at the upper right quadrant where players with high eFG and AST % distributed, we can see most outlier points in this quadrant are mostly freshman and sophomore.
 
@@ -180,25 +183,6 @@ e<-son_bb_dat %>% slice_max(eFG, n=100) %>% count(college_year) %>% filter(colle
 ggarrange(d,e, ncol = 2, nrow = 1)
 ```
 
-
-
-```{r}
-son_bb_dat $pts[son_bb_dat$pts == ""] <- NA
-#Relationship between Offensive Box Plus/minus vs points
-son_bb_dat $pts[son_bb_dat$pts == ""] <- NA
-son_bb_dat %>% na.omit() %>% ggplot(aes(x=pts,y=obpm))+ 
-  geom_smooth(se = F) +  
-  theme_light() + 
-  xlab("Points") + ylab(" Offensive Box Plus/Minus")+ ggtitle("Relationship between Offensive Box Plus Minus and Points")
-# Offensive Rating vs Points among players have 100 % assistance percentage
-son_bb_dat %>% filter(AST_per == 100, Ortg!= 0, pts!=0) %>% 
-  ggplot(aes(x= Ortg, y= pts))+ 
-  geom_point(aes(color=role)) + 
-  geom_text_repel(hjust = 0, nudge_x = 0, 
-                  aes(label= player_name, colour = role),size=2)+  
-  theme_minimal()+
-  xlab("Offensive Rating") + ylab("Points") + ggtitle("Offensive Rating vs. Points \n Among Players with 100 % assistance percentage")
-```
 
 The relationship Game played and Effective Field Goal?
 Especially, Power Forward Position seem like  experience is very important to consider selecting players for this position in the dream team for a higher effective field goal
@@ -261,7 +245,10 @@ new_bb %>%
   ylab("Free Throw Percentage")+
   ggtitle("Post Player Free Throws")
 
-
+#guard with most Free throws and highest percentage
+#Deishuan Booker
+new_bb %>%
+  filter(FTA > 250 & FT_per > .9)
 ```
 
 2. Rebounds are important because this is where the teams show who wnats it more, this is where the game get's physical, and personal.
@@ -341,25 +328,25 @@ a2 = some_new_bb %>%
 ggarrange(a1,a2, ncol = 2, nrow = 1)
 ```
 
-##The assist to turnover ratio 
+## The assist to turnover ratio 
 The assist to turnover ratio is one of many basketball statistics used to evaluate the ball control and ball handling skills of a player
 ```{r ast.tov}
 son_bb_dat %>% ggplot(aes(x=ast.tov,y=Ortg))+
+  geom_point()+
   geom_smooth(aes(colour = role), se=F) +
   theme_classic() +
-  facet_wrap(~role)+
   labs(x="The assist to turnover ratio", y="Offensive Rating", title="The assist to turnover ratio vs.Offensive Rating \nby Role")
 son_bb_dat %>% ggplot(aes(x=ast.tov,y=drtg))+
+  geom_point()+
   geom_smooth(aes(colour = role), se=F) +
   theme_classic() +
-  facet_wrap(~role)+
   labs(x="The assist to turnover ratio", y="Defensive Rating", title="The assist to turnover ratio vs. Defensive Rating \nby Role")
 ```
 
-##Conclusion
+## Conclusion
 Get Buckets
 
-##References
+## References
 https://www.breakthroughbasketball.com/stats/how-we-use-stats-Hagness.html
 
 https://www.kaggle.com/adityak2003/college-basketball-players-20092021/metadata
