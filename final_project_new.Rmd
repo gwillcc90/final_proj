@@ -21,9 +21,11 @@ library(readxl)
 ```
 
 We took the data from a kaggle dataset.
-The data is the past decade's NCAA college basketball data filtered down to the last 3 seasons 18-19,19-20,20-21 for simplicity.
+The data is the past decade's NCAA college basketball data filtered down to the last 3 seasons 18-19,19-20,20-21 to stay recent.
 Our goal was to look at data trends based on role and academic status (being freshman, sophmores, juniors, and seniors)
 
+For simplicity we categorize all guard variations as guards, and all the Powerforwards, centers and stretch as post players.
+And because we are in a new season, we will not look at senior players other than in the general graphs
 
 
 ```{r import data}
@@ -88,7 +90,7 @@ new_bb %>%
   distinct(player) %>%
   count()
 
-#88 players appearing in all 3 seasons up to 21-22, top 25
+#11 players appearing in all 3 seasons up to 21-22, top 25
 top_25s %>%
   filter(!college_year == "Sr") %>%
   add_count(player) %>%
@@ -284,43 +286,6 @@ top_fr_PfC %>%
 
 ```
 
-```{r fresh_soph_2020 filters}
-#filters for freshman and sophmores in 2018-2019 season
-top_25_2soph_2020 = top_25s %>%
-  filter(college_year == "Fr" & year == 2020
-         |college_year == "So" & year == 2020)
-
-#top guards
-top_2soph_role_g_2020 = top_25_2soph_2020 %>%
-    filter(role == "Combo G" | role == "Scoring PG"
-         | role == "Wing G" | role == "Pure PG")
-
-#top powerforwards/center
-top_2soph_role_pfC_2020 = top_25_2soph_2020 %>%
-      filter(role == "PF/C" | role == "C"
-         | role == "Wing F" | role == "Stretch 4")
-```
-
-
-```{r to juniors 2021}
-#freshman, sophmore, juniors in 2020-2021 season
-
-#top guards
-top_2jnr_guards = top_25s %>%
-  filter(!yr == "Sr") %>%
-  filter(role == "Combo G" | role == "Scoring PG"
-         | role == "Wing G" | role == "Pure PG")
-
-#top powerforwards/center
-top_2jnr_PfC = top_25s %>%
-  filter(!yr == "Sr") %>%
-  filter(role == "PF/C" | role == "C"
-         | role == "Wing F" | role == "Stretch 4")
-
-
-```
-
-
 
 
 1. Correlation between year (freshman, sophmore, etc) and stats
@@ -367,32 +332,6 @@ new_bb %>% slice_max(AST_per, n=50) %>% count(yr) %>% filter(yr == "Fr"|yr =="So
 
 ```
 
-```{r freshman plots}
-#looking at freshman playing most games and scoring highest
-top_25_fr_2019 %>%
-  filter(GP > 20 & Min_per > 50) %>%
-  ggplot(aes(x = twoP_per,y = TP_per)) + 
-  geom_point() + 
-  geom_text(aes(label = player),size = 4,ljust = .25)
 
-top_fr_role_g %>%
-  filter(Min_per > 59.9 & AST_per > 20 ) %>%
-  ggplot(aes(x = twoP_per,y = TP_per)) + 
-  geom_point() + 
-  geom_text(aes(label = player),size = 4,ljust = .25)
 
-```
-
-```
-3. Correlation between position and points scored(barplot) group-by(team), facet year
-4. Correlation between rebounds(offense and def) position, and points scored (continuous)
-```{r}
-top_25s %>%
-filter(year == 2020) %>%
-  ggplot(aes(x = team,y = FTA)) +
-  geom_bar()
-```
-
-5. Look at averages for all players and see which freshman stick out
-6. filter players not appearing in latter years
 
