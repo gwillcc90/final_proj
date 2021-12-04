@@ -1,8 +1,12 @@
 ---
 title: "college_basketball"
-author: "Will Curkan"
+author: "Will Curkan and Son Luong"
 date: "11/14/2021"
-output: html_document
+output:
+  slidy_presentation: 
+    fig_height: 3
+    fig_width: 3
+  pdf_document: default
 ---
 WHAT IT TAKES
 
@@ -20,7 +24,20 @@ library(RColorBrewer)
 library(stringr)
 library(readxl)
 library(ggrepel)
+library(ggpubr)
 ```
+
+## Introduction
+
+Statistics are a good way to tell how you are doing in a sport and what you are best at. They can also help to determine where you and your team need to improve. We can use statistic in sport to create a dream team. We work on the College Basketball created by Aditya Kumar from Kaggle, which contains past decade's NCAA college basketball data.
+
+The data is the past decade's NCAA college basketball data filtered down to the last 3 seasons 18-19,19-20,20-21 to stay recent.
+
+
+## Exploring Data
+
+Our goal was to look at data trends based on role and academic status (being freshman, sophmores, juniors, and seniors). For simplicity we categorize all guard variations as guards, and all the Powerforwards, centers and stretch as post players. And because we are in a new season, we will not look at senior players other than in the general graphs
+
 
 We took the data from a kaggle dataset.
 The data is the past decade's NCAA college basketball data filtered down to the last 3 seasons 18-19,19-20,20-21 to stay recent.
@@ -36,23 +53,21 @@ school_dat = read_excel("bb_school_ranks.xlsx")
 
 ```
 
-Cleaned data to make easier to work with:
-1. rename variables to readable, workable names
-2. filter to recent 3 years
-3. remove less-meaningful variables
-```{r data cleanup}
-#create this vector to see assists for all top teams
 
+1. Cleaned data to make easier to work with:
++rename variables to readable, workable names
++filter to recent 3 years
++remove less-meaningful variables
+```{r data cleanup}
 new_bb = bb_dat %>%
   rename(role = X, player = player_name) %>%
   filter(year > 2018) %>%
   select(!ht & !dunksmade & !dunksmiss.dunksmade
          & !dunksmade..dunksmade.dunksmiss.
          & !type & !num & !pid & !pick & !pfr
-         & !Rec.Rank) %>%
-  mutate(top_team = ifelse(team %in% top_teams_vector,T,F))
-  
-son_bb_dat <- bb_dat %>%    select(-c(27,28,34,35,38,40,41,42,44,45,46,66)) %>% filter(year!=2009) %>% rename (college_year = yr, role = X)
+         & !Rec.Rank)
+
+son_bb_dat <- bb_dat %>% select(-c(27,28,34,35,38,40,41,42,44,45,46,66)) %>% filter(year!=2009) %>% rename (college_year = yr, role = X)
 
 #rename school to team to match new_bb
 new_ranks = school_dat %>%
@@ -60,7 +75,41 @@ new_ranks = school_dat %>%
   add_count(team)%>%
   rename(appearances = n)
 
+#creating vector for top team in whole dataset
+top_teams_vector = new_ranks$team
+
+#recreating new_bb filter to show if player in top team
+new_bb = new_bb %>%
+  mutate(top_team = ifelse(team %in% top_teams_vector,T,F))
+
+#46 teams have been in top 25 from (2018-)2019-2021
+top_25s = inner_join(new_bb,new_ranks) %>%
+  relocate(college_year = yr, year, role, .before = GP)
 ```
+
+How many teams in the NCAA?
+
+```{r NCAA intro facts}
+#unique teams in NCAA n = 358, all divisions
+new_bb %>%
+  distinct(team) %>%
+  count()
+#unique players in NCAA, 8697 in 2018+
+new_bb %>%
+  distinct(player) %>%
+  count()
+#11 players appearing in all 3 seasons up to 21-22, top 25
+top_25s %>%
+  filter(!college_year == "Sr") %>%
+  add_count(player) %>%
+  filter(n == 3) %>%
+  group_by(player) %>%
+  summarize(n = n()) %>%
+  count()
+```
+How's relationship between all the varibles?
+
+First , we take a look at how's relationship between all the varibles? 
 
 ## How's relationship between all the varibles?
 
@@ -74,28 +123,7 @@ corrplot(cor(numeric_dat), type="upper", order="hclust",
 So, we notice a couples negative correlation dbpm/dgbpm/bpm vs drtg, and pfr vs drtg and some postive correlation porpag vs adjoe & obpm, pts vs dreb/dporpag/rimmade/midmade/twoPM/FTM/mp/stops, rimmade/dreb/treb/pts, GP vs stops, stl vs mp. 
 
 
-```{r}
-son_bb_dat$role[son_bb_dat$role == ""] <- NA
-son_bb_dat %>% na.omit()%>% filter(rimmade > 100) %>% group_by(role)%>% ggplot( aes(x= rimmade, y = pts, group = role)) +
-  geom_point(aes(col=role, alpha=0.01))+
-  facet_wrap(~role)
-```
 
-Creating joined frame to work with top 25 ranked schools:
-```{r joined} 
-#creating vector for top team in whole dataset
-top_teams_vector = new_ranks$team
-
-#recreating new_bb filter to show if player in top team
-new_bb = new_bb %>%
-  mutate(top_team = ifelse(team %in% top_teams_vector,T,F))
-
-#46 teams have been in top 25 from (2018-)2019-2021
-top_25s = inner_join(new_bb,new_ranks) %>%
-  relocate(college_year = yr, year, role, .before = GP)
-
-
-```
 Sports is a teamwork!Then how to evaluate a good team player, we measure playerâ€™s contributions and their impact on the court by BPM (Box Plus/Minus). The more time they contribute on the court, the more points they get. 
 
 
@@ -103,27 +131,22 @@ Sports is a teamwork!Then how to evaluate a good team player, we measure playerâ
 son_bb_dat $pts[son_bb_dat$pts == ""] <- NA
 son_bb_dat $role[son_bb_dat$role == ""] <- NA
 son_bb_dat $mp[son_bb_dat$mp == ""] <- NA
-son_bb_dat %>% filter(college_year != "Sr") %>% add_count(player_name) %>% filter(n == 10) %>% na.omit() %>% ggplot(aes(x=pts,y=bpm))+ 
+a = son_bb_dat %>% filter(college_year != "Sr") %>% add_count(player_name) %>% filter(n == 10) %>% na.omit() %>% ggplot(aes(x=pts,y=bpm))+ 
   geom_smooth(se = F) +  
   theme_light() + 
   xlab("Points") + ylab(" Box Plus/Minus")+ ggtitle("Box Plus/Minus vs. Points")
-son_bb_dat %>% filter(college_year != "Sr") %>% add_count(player_name) %>% filter(n == 10) %>% na.omit() %>% ggplot(aes(x=pts,y=mp))+ 
+b = son_bb_dat %>% filter(college_year != "Sr") %>% add_count(player_name) %>% filter(n == 10) %>% na.omit() %>% ggplot(aes(x=pts,y=mp))+ 
   geom_smooth(se = F) +  
   theme_light() + 
   xlab("Points") + ylab(" Minutes Played")+ ggtitle("Minutes Played vs. Points")
-son_bb_dat %>% filter(college_year != "Sr") %>% add_count(player_name) %>% filter(n == 10) %>% na.omit() %>% ggplot(aes(x=bpm,y=mp))+ 
+c = son_bb_dat %>% filter(college_year != "Sr") %>% add_count(player_name) %>% filter(n == 10) %>% na.omit() %>% ggplot(aes(x=bpm,y=mp))+ 
   geom_smooth(se = F) +  
   theme_light() + 
   xlab("Box Plus Minus") + ylab(" Minutes Played") + ggtitle("Minutes Played vs. Box Plus/Minus")
-#ggplot(aes(x = player,y = TPA, color=player)) + geom_point()
+ggarrange(a,b,c, ncol = 3, nrow = 1)
 ```
 How each position attribute into gaining points
 ```{r}
-son_bb_dat$role[son_bb_dat$role == ""] <- NA
-son_bb_dat %>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) +
-  geom_boxplot(aes(na.rm=T)) + theme_linedraw() + 
-  xlab("Role") + ylab("Points")
-
 son_bb_dat%>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) + 
   geom_boxplot(aes(x=role,
                    y=pts,
@@ -143,39 +166,21 @@ son_bb_dat%>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) +
 ```{r}
 # Top 50 Assistant percentage  vs college year
 
-son_bb_dat %>% slice_max(AST_per, n=50) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr") %>% mutate(college_year = recode(college_year, "Fr"= "Freshman","So" = "Sorphomore", "Jr" = "Junior", "Sr" = "Senior")) %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ 
+d<-son_bb_dat %>% slice_max(AST_per, n=100) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr") %>% mutate(college_year = recode(college_year, "Fr"= "Freshman","So" = "Sorphomore", "Jr" = "Junior", "Sr" = "Senior")) %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ 
   labs(fill = "College Year\n")+
   xlab("College Year") + 
-  ylab("Count")+ ggtitle("Top 50 Assistant Percentage by College Year")+theme_linedraw()
+  ylab("Count")+ ggtitle("Top 50 Assistant Percentage by College Year")+theme_linedraw() 
 
 # Top 50 Effective Field Goal vs college year
-son_bb_dat %>% slice_max(eFG, n=50) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr")  %>% mutate(college_year = recode(college_year, "Fr"= "Freshman","So" = "Sorphomore", "Jr" = "Junior", "Sr" = "Senior")) %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ theme_linedraw() + 
+e<-son_bb_dat %>% slice_max(eFG, n=100) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr")  %>% mutate(college_year = recode(college_year, "Fr"= "Freshman","So" = "Sorphomore", "Jr" = "Junior", "Sr" = "Senior")) %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ theme_linedraw() + 
   labs(fill = "College Year\n")+
   xlab("College Year") + 
   ylab("Count") + ggtitle("Top 50 Effective Field Goal by College Year")
-# AST % vs eFG by college year
 
-top_25s %>% group_by(player) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr", eFG !=0, AST_per!=0 ) %>% ggplot(aes(x=AST_per,y = eFG)) +
-  geom_point(aes(color = college_year))+
-  facet_wrap(~college_year)+
-  labs(color = "College Year\n") +
-  xlab("Assistant Percentage")+
-  ylab("Effective Field Goal %") + 
-  ggtitle("Assistant Percentage vs. Effective Field Goal % \n by college year") + 
-  theme_minimal() 
+ggarrange(d,e, ncol = 2, nrow = 1)
 ```
 
-## The more they contribute on the court, the more points they get ?
-```{r}
-son_bb_dat $pts[son_bb_dat$pts == ""] <- NA
-son_bb_dat %>% na.omit() %>% ggplot(aes(x=pts,y=bpm))+
-  geom_smooth(se = F) +  
-  theme_light() + 
-  xlab("Points") + 
-  ylab("Box Plus/Minus")+ ggtitle("Relationship between  Box Plus Minus and Points")
-```
 
-## Who is the best offensive players?
 
 ```{r}
 son_bb_dat $pts[son_bb_dat$pts == ""] <- NA
@@ -195,34 +200,6 @@ son_bb_dat %>% filter(AST_per == 100, Ortg!= 0, pts!=0) %>%
   xlab("Offensive Rating") + ylab("Points") + ggtitle("Offensive Rating vs. Points \n Among Players with 100 % assistance percentage")
 ```
 
-## Who is best defensive player who are 
-Playing great defense will lead to more offense, minimize opponents possession time and shooting percentage per possession.
-Defensive Rating (DRtg)
-Defensive Rebounding Percentage (DRB%)
-Block Percentage (BLK%)
-Steal Percentage (STL%)
-
-```{r}
-son_bb_dat %>% 
-  select(1:2,role, drtg, blk_per,stl_per,DRB_per,pts) %>% 
-  na.omit() %>% 
-  group_by(role)%>% 
-  ggplot(aes(x= drtg, y = pts, group = role)) +
-  geom_point(aes(col=role, alpha=0.01))+
-  facet_wrap(~role)
-```
-
-The relationship between Effective Field Goal vs Box Plus/Minus
-
-```{r}
-son_bb_dat$eFG[son_bb_dat$eFG == ""] <- NA
-son_bb_dat %>% na.omit() %>% ggplot(aes(x=eFG,y=bpm))+
-  geom_smooth(se = F) + 
-  theme_light() + 
-  xlab("Effective Field Goal") + 
-  ylab("Box Plus/Minus")
-```
-
 The relationship Game played and Effective Field Goal?
 Especially, Power Forward Position seem like  experience is very important to consider selecting players for this position in the dream team for a higher effective field goal
 ```{r}
@@ -236,13 +213,6 @@ son_bb_dat %>%  na.omit() %>% ggplot(aes(y=eFG,x=GP))+
 
 Point vs Assistance by Team in top 10 team have highest accummulated 
 ```{r}
-top_25s %>%na.omit() %>% group_by(team) %>%
-summarize(n = sum(ast), m = sum(pts)) %>%
-head(10) %>%  ggplot(aes(x=n,y=m))+ 
-  geom_point(aes(col = team)) +  
-  geom_text(aes(label=team,col=team))+
-  xlab("Assistance") +
-  ylab("Points")
 son_bb_dat %>%na.omit() %>% group_by(team) %>%
 summarize(ast_sum = sum(ast), m = sum(pts)) %>%
 slice_max(ast_sum, n = 10) %>%  ggplot(aes(x=ast_sum,y=m))+ 
@@ -252,31 +222,12 @@ slice_max(ast_sum, n = 10) %>%  ggplot(aes(x=ast_sum,y=m))+
   
 ```
 
-1. How many teams in the NCAA
-
-```{r NCAA intro facts}
-#unique teams in NCAA n = 358, all divisions
-new_bb %>%
-  distinct(team) %>%
-  count()
-
-#unique players in NCAA, 8697 in 2018+
-new_bb %>%
-  distinct(player) %>%
-  count()
-
-#11 players appearing in all 3 seasons up to 21-22, top 25
-top_25s %>%
-  filter(!college_year == "Sr") %>%
-  add_count(player) %>%
-  filter(n == 3) %>%
-  group_by(player) %>%
-  summarize(n = n()) %>%
-  count()
-```
 
 1.Free Throws are incredibly important because they are uncontested shots 
 ```{r free throws}
+# quantile(new_bb$FT_per,c(.25,.5,.75))
+# quantile(new_bb$FTA,c(.25,.5,.75))
+
 new_bb %>%
   # filter(FTA > 58 & FT_per > .769) %>%
   ggplot(aes(x = FTA,y = FT_per)) +
@@ -310,14 +261,16 @@ new_bb %>%
   ylab("Free Throw Percentage")+
   ggtitle("Post Player Free Throws")
 
-quantile(new_bb$FT_per,c(.25,.5,.75))
-quantile(new_bb$FTA,c(.25,.5,.75))
+
 ```
 
 2. Rebounds are important because this is where the teams show who wnats it more, this is where the game get's physical, and personal.
 
 ```{r rebound comparison}
-#maybe use density graph for this
+# quantile(new_bb$GP,c(.25,.5,.75))
+# quantile(new_bb$ORB_per,c(.25,.5,.75))
+# quantile(new_bb$DRB_per,c(.25,.5,.75))
+
 new_bb %>%
   filter(GP > 29) %>%
   ggplot(aes(x = ORB_per,y = DRB_per)) +
@@ -332,13 +285,7 @@ new_bb %>%
   filter(GP > 29 & ORB_per >= 7.6 & DRB_per >= 16.7) %>%
     filter(role == "Combo G" | role == "Scoring PG"
         | role == "Wing G" | role == "Pure PG") %>%
-  filter(!yr == "Sr") %>%
-  ggplot(aes(x = ORB_per,y = DRB_per, color = team)) +
-  geom_point() + 
-  geom_smooth()+ 
-  xlab("Offensive Rebound Percentage")+
-  ylab("Defensive Rebound Percentage")+
-  ggtitle("Guard Rebound Comparison")
+  filter(!yr == "Sr")
 
 #Center/Powerforwards
 new_bb %>%
@@ -355,16 +302,13 @@ new_bb %>%
   labs(title = "Post Player Rebound Comparison",
        subtitle = "")
 
-quantile(new_bb$GP,c(.25,.5,.75))
-quantile(new_bb$ORB_per,c(.25,.5,.75))
-quantile(new_bb$DRB_per,c(.25,.5,.75))
 ```
 
 
 
 ```{r top 10 asts}
 options(scipen = 999)
-top_25s %>%
+a1 = top_25s %>%
   na.omit() %>%
   filter(appearances == 3) %>%
   group_by(team) %>%
@@ -383,7 +327,7 @@ some_new_bb = new_bb %>%
   filter(top_team == T) %>%
   left_join(new_ranks)
 
-some_new_bb %>%
+a2 = some_new_bb %>%
   group_by(team) %>%
   summarize(n_ast = mean(ast)) %>%
   left_join(some_new_bb) %>%
@@ -394,19 +338,31 @@ some_new_bb %>%
         subtitle = "independent of season rank \nfor all seasons")+
   labs(color = "Appearances in Top 25")
 
+ggarrange(a1,a2, ncol = 2, nrow = 1)
 ```
 
-```{r ast/tov}
-top_25s %>%
-  na.omit() %>%
-  filter(ast.tov > 1 & GP > 29) %>%
-  ggplot(aes(x = GP,y = ast.tov))+
-  geom_point()+
-  geom_smooth()
-  
+##The assist to turnover ratio 
+The assist to turnover ratio is one of many basketball statistics used to evaluate the ball control and ball handling skills of a player
+```{r ast.tov}
+son_bb_dat %>% ggplot(aes(x=ast.tov,y=Ortg))+
+  geom_smooth(aes(colour = role), se=F) +
+  theme_classic() +
+  facet_wrap(~role)+
+  labs(x="The assist to turnover ratio", y="Offensive Rating", title="The assist to turnover ratio vs.Offensive Rating \nby Role")
+son_bb_dat %>% ggplot(aes(x=ast.tov,y=drtg))+
+  geom_smooth(aes(colour = role), se=F) +
+  theme_classic() +
+  facet_wrap(~role)+
+  labs(x="The assist to turnover ratio", y="Defensive Rating", title="The assist to turnover ratio vs. Defensive Rating \nby Role")
 ```
 
+##Conclusion
+Get Buckets
 
+##References
+https://www.breakthroughbasketball.com/stats/how-we-use-stats-Hagness.html
+
+https://www.kaggle.com/adityak2003/college-basketball-players-20092021/metadata
 
 
 
