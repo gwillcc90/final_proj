@@ -27,26 +27,15 @@ library(ggrepel)
 library(ggpubr)
 ```
 
-## Introduction
+## Introduction and Exploring Data
 
 Statistics are a good way to tell how you are doing in a sport and what you are best at. They can also help to determine where you and your team need to improve. We can use statistic in sport to create a dream team. We work on the College Basketball created by Aditya Kumar from Kaggle, which contains past decade's NCAA college basketball data.
 
+Our goal was to look at data trends based on role and academic status: freshman, sophmores, juniors, and seniors. The data is the past decade's NCAA college basketball.
 
-
-The data is the past decade's NCAA college basketball data filtered down to the last 3 seasons 18-19,19-20,20-21 to stay recent.
-
-
-## Exploring Data
-
-Our goal was to look at data trends based on role and academic status (being freshman, sophmores, juniors, and seniors). For simplicity we categorize all guard variations as guards, and all the Powerforwards, centers and stretch as post players.
-
-
-The data is the past decade's NCAA college basketball data filtered down to the last 3 seasons 18-19,19-20,20-21 to stay recent.
-Our goal was to look at data trends based on role and academic status (being freshman, sophmores, juniors, and seniors)
-
-For simplicity we categorize all guard variations as guards, and all the Powerforwards, centers and stretch as post players.
 
 ---
+
 ```{r import data, echo = F}
 bb_dat = read.csv("CollegeBasketballPlayers2009-2021.csv")
 school_dat = read_excel("bb_school_ranks.xlsx")
@@ -90,6 +79,8 @@ top_25s = inner_join(new_bb,new_ranks) %>%
 ```
 
 
+## Fun Fax
+
 - How many teams are represented in this dataset
 
 ```{r echo = F}
@@ -130,7 +121,7 @@ How's relationship between all the varibles?
 First, we take a look at how's relationship between all the varibles? 
 
 
-```{r fig.height = 5, fig.width = 5}
+```{r fig.height = 5, fig.width = 5, echo = F}
 numeric_dat <- select_if(son_bb_dat,is.numeric) %>% select(-contains("per"))%>% na.omit()
 corrplot(cor(numeric_dat), type="upper", order="hclust",
          col=brewer.pal(n=8, name="RdYlBu"))
@@ -176,7 +167,8 @@ son_bb_dat%>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) +
                    fill=role,
                    na.rm=T)) + 
   geom_text_repel(data = filter(son_bb_dat, pts >= 23), 
-                  aes(label = player_name)) + 
+                  aes(label = player_name,
+                      col=role)) + 
   theme_linedraw() +
   xlab("Role") + 
   ylab("Points")  
@@ -237,7 +229,10 @@ slice_max(ast_sum, n = 10) %>%  ggplot(aes(x=ast_sum,y=m))+
   
 ```
 
+
 ## Free Throws
+
+Now we categorize all guard variations as guards, and all the Powerforwards, centers and stretch as post players.
 
 Free Throws are incredibly important because they are uncontested shots 
 
@@ -335,6 +330,8 @@ ggarrange(r1,r2, ncol = 2, nrow = 1)
 ```
 
 ## Assists
+
+We filter down to the past 3 season's top 25 teams.
 
 ```{r top 10 asts, echo = F, message = F, fig.height = 3, fig.width = 8}
 options(scipen = 999)
