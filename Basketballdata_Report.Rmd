@@ -269,7 +269,7 @@ f3 <- bb_dat %>%
 ggarrange(f1,f2,f3, ncol = 3, nrow = 1)
 ```
 ```{r rebound comparison}
-bb_dat %>%
+r1<-bb_dat %>%
   filter(GP > 29) %>%
   ggplot(aes(x = ORB_per,y = DRB_per)) +
   geom_point() + 
@@ -278,7 +278,7 @@ bb_dat %>%
   ylab("Defensive Rebound Percentage")+
   ggtitle("Rebound Comparison")
 #Guards
-bb_dat %>%
+r2<-bb_dat %>%
   filter(GP > 29) %>%
     filter(role == "Combo G" | role == "Scoring PG"
         | role == "Wing G" | role == "Pure PG") %>%
@@ -289,7 +289,7 @@ bb_dat %>%
   ylab("Defensive Rebound Percentage")+
   ggtitle("Guard Rebound Comparison")
 #Center/Powerforwards
-bb_dat %>%
+r3<-bb_dat %>%
   filter(GP > 29) %>%
   filter(role == "PF/ C" | role == "C"| role == "Wing F" | role == "Stretch 4") %>%
   ggplot(aes(x = ORB_per,y = DRB_per)) +
@@ -302,11 +302,9 @@ bb_dat %>%
   #quantile(bb_dat$GP,c(.25,.5,.75))
 
 
-bb_dat %>% filter(GP > 29)  %>% ggplot(aes(y=ORB_per,x=DRB_per))+
-  geom_smooth(aes(colour = role), se=F) +
-  theme_classic() +
-  facet_wrap(~role)+
-  labs(x="DRB", y="ORB", title="Defensive Rebound  vs. Offensive Rebound \nby Role")
+#r4<- bb_dat %>% filter(GP > 29)  %>% ggplot(aes(y=ORB_per,x=DRB_per))+ geom_smooth(aes(colour = role), se=F) + theme_classic() + facet_wrap(~role)+ labs(x="DRB", y="ORB", title="Defensive Rebound  vs. Offensive Rebound \nby Role")
+
+ggarrange(r1,r2,r3, ncol = 3, nrow = 1)
 
 ```
 ##The assist to turnover ratio 
@@ -323,6 +321,11 @@ bb_dat %>% ggplot(aes(x=ast.tov,y=drtg))+
   theme_classic() +
   facet_wrap(~role)+
   labs(x="The assist to turnover ratio", y="Defensive Rating", title="The assist to turnover ratio vs. Defensive Rating \nby Role")
+bb_dat %>% ggplot(aes(x=ast.tov,y=AST_per))+
+  geom_smooth(aes(colour = role), se=F) +
+  theme_classic() +
+  facet_wrap(~role)+
+  labs(x="The assist to turnover ratio", y="Assist Percentage", title="The assist to turnover ratio vs. Assist Percentage \nby Role")
 ```
 
 
