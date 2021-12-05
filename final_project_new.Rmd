@@ -386,10 +386,12 @@ new_ranks %>%
 ## The assist to turnover ratio 
 
 The assist to turnover ratio is one of many basketball statistics used to evaluate the ball control and ball handling skills of a player
-```{r ast.tov}
+
+
+```{r ast.tov, message = F, echo = F, fig.height = 3, fig.width = 8}
 # quantile(new_bb$ast.tov,c(.25,.5,.75), na.rm = T)
 
-new_bb %>%
+at1 = new_bb %>%
   filter(GP > 29) %>%
   ggplot(aes(x = GP,y = ast.tov)) +
   geom_point() + 
@@ -405,7 +407,7 @@ some_new_bb = new_bb %>%
   na.omit()
 
 
-some_new_bb %>%
+at2 = some_new_bb %>%
   group_by(team) %>%
   summarize(at_tot = sum(round(ast.tov,2))) %>%
   left_join(some_new_bb) %>%
@@ -416,6 +418,7 @@ some_new_bb %>%
   labs(color = "Appearances in Top 25")+
   xlab("Assist/Turnover Ratio")
 
+ggarrange(at1,at2, ncol = 2, nrow = 1)
 ```
 
 ## Conclusion
@@ -429,6 +432,8 @@ The guy with the highest free throw accuracy kinda sucks.
 Most people getting rebounds are post players
 
 Made discoveries on how assists, while important do not necessarily prove a team's skill
+
+
 
 ## References
 Source of some questions: 
