@@ -201,8 +201,8 @@ ggarrange(d,e, ncol = 2, nrow = 1)
 
 ---
 
-The relationship Game played and Effective Field Goal?
-Especially, Power Forward Position seem like  experience is very important to consider selecting players for this position in the dream team for a higher effective field goal
+The relationship between Game played and Effective Field Goal?
+The Powerforward Position seems like  experience is very important to consider.
 
 
 ```{r message = F, warning=F, echo = F, fig.width = 7, fig.height = 3}
@@ -220,13 +220,24 @@ Point vs Assistance by Team in top 10 team have highest accummulated
 
 
 ```{r echo = F, fig.width = 7, fig.height = 4}
-son_bb_dat %>%na.omit() %>% group_by(team) %>%
-summarize(ast_sum = sum(ast), m = sum(pts)) %>%
-slice_max(ast_sum, n = 10) %>%  ggplot(aes(x=ast_sum,y=m))+ 
+
+son_bb_dat %>%na.omit() %>%
+  group_by(team) %>%
+summarize(ast_sum = sum(ast)
+          , m = sum(pts)) %>%
+slice_max(ast_sum, n = 10) %>%
+  ggplot(aes(x=ast_sum,y=m))+ 
   geom_point(aes(col = team)) +  
   geom_text_repel(aes(label=team,col=team))+
-  labs(x="Assistance", y="Points", title="Assistance vs Points \nTop 10 Team with Highest Assistance")
+  labs(x="Assists", y="Points", title="Assists vs Points \nTop 10 Team with Highest Assistance")
   
+son_bb_dat %>%
+  group_by(team) %>%
+summarize(ast_sum = sum(ast)
+          , m = sum(pts)) %>%
+  ggplot(aes(x=ast_sum,y=m))+ 
+  geom_jitter()+
+  labs(x="Assists", y="Points", title="Assists vs Points")
 ```
 
 
@@ -361,31 +372,63 @@ a2 = some_new_bb %>%
   na.omit() %>%
   ggplot() +
   geom_density(aes(x = n_ast, color = as.factor(appearances)))+
-  ggtitle(label = "Mean Assists of All Teams \nAppearing in the top 25",
-        subtitle = "independent of season rank \nfor all seasons")+
+  ggtitle(label = "Mean Assists of All Teams Appearing in the Top 25",
+        subtitle = "Independent of Season Rank For All Seasons")+
   labs(color = "Appearances in Top 25")
 
 ggarrange(a1,a2, ncol = 2, nrow = 1)
+
+#2-3 of the rank 1s for past 3 seasons appeared 3x
+new_ranks %>%
+  filter(rank == 1)
 ```
 
 ## The assist to turnover ratio 
 
 The assist to turnover ratio is one of many basketball statistics used to evaluate the ball control and ball handling skills of a player
 ```{r ast.tov}
-son_bb_dat %>% ggplot(aes(x=ast.tov,y=Ortg))+
-  geom_point()+
-  geom_smooth(aes(colour = role), se=F) +
-  theme_classic() +
-  labs(x="The assist to turnover ratio", y="Offensive Rating", title="The assist to turnover ratio vs.Offensive Rating \nby Role")
-son_bb_dat %>% ggplot(aes(x=ast.tov,y=drtg))+
-  geom_point()+
-  geom_smooth(aes(colour = role), se=F) +
-  theme_classic() +
-  labs(x="The assist to turnover ratio", y="Defensive Rating", title="The assist to turnover ratio vs. Defensive Rating \nby Role")
+# quantile(new_bb$ast.tov,c(.25,.5,.75), na.rm = T)
+
+new_bb %>%
+  filter(GP > 29) %>%
+  ggplot(aes(x = GP,y = ast.tov)) +
+  geom_point() + 
+  geom_smooth()+ 
+  xlab("GP")+
+  ylab("Assist/Turnover ratio")+
+  ggtitle(label = "Rebound Comparison",
+          subtitle = "all players")
+
+some_new_bb = new_bb %>%
+  filter(top_team == T) %>%
+  left_join(new_ranks) %>%
+  na.omit()
+
+
+some_new_bb %>%
+  group_by(team) %>%
+  summarize(at_tot = sum(round(ast.tov,2))) %>%
+  left_join(some_new_bb) %>%
+  ggplot() +
+  geom_density(aes(x = at_tot, color = as.factor(appearances)))+
+  ggtitle(label = "Sum of Assist/Turnover Ratio of All Teams Appearing \nin the Top 25",
+        subtitle = "Independent of Season Rank For All Seasons")+
+  labs(color = "Appearances in Top 25")+
+  xlab("Assist/Turnover Ratio")
+
 ```
 
 ## Conclusion
 ~~Get Buckets~~
+
+Teams with high amounts of assists are getting high amounts of points.
+
+Competitive players shoot free throws with around 75% accuracy.
+The guy with the highest free throw accuracy kinda sucks.
+
+Most people getting rebounds are post players
+
+Made discoveries on how assists, while important do not necessarily prove a team's skill
 
 ## References
 Source of some questions: 
