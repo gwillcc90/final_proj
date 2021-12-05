@@ -133,7 +133,7 @@ So, we notice a couples negative correlation dbpm/dgbpm/bpm vs drtg, and pfr vs 
 
 ## Visualization
 
-Sports require! Then how to evaluate a good team player, we measure player’s contributions and their impact on the court by BPM (Box Plus/Minus). The more time they contribute on the court, the more points they get. 
+Sports require teamwork! For how to evaluate a good team player, we measure player’s contributions and their impact on the court by BPM (Box Plus/Minus). The more time they contribute on the court, the more points they get. 
 
 
 ```{r echo = F, message = F, warning = F, fig.height = 3, fig.width = 8}
