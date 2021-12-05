@@ -1,13 +1,14 @@
 ---
 title: "What It Takes"
-subtitle: "to Play NCAA College Basketball"
 author: "Will Curkan and Son Luong"
 date: "12/6/2021"
 output:
-  slidy_presentation: 
+  slidy_presentation:
     fig_height: 3
     fig_width: 3
   pdf_document: default
+  ioslides_presentation: default
+subtitle: to Play NCAA College Basketball
 ---
 
 ```{r setup, include=FALSE}
@@ -29,9 +30,9 @@ library(ggpubr)
 
 ## Introduction and Exploring Data
 
-Statistics are a good way to tell how you are doing in a sport and what you are best at. They can also help to determine where you and your team need to improve. We can use statistic in sport to create a dream team. We work on the College Basketball created by Aditya Kumar from Kaggle, which contains past decade's NCAA college basketball data.
+Statistics are a good way to tell how you are doing in a sport and what you are best at. They can also help to determine where you and your team need to improve. We worked on the College Basketball created by Aditya Kumar from Kaggle, which contains past decade's NCAA college basketball data.
 
-Our goal was to look at data trends based on role and academic status: freshman, sophmores, juniors, and seniors. The data is the past decade's NCAA college basketball.
+Our goal was to look at data trends based on role and academic status: freshman, sophmores, juniors, and seniors.
 
 
 ---
@@ -43,11 +44,16 @@ school_dat = read_excel("bb_school_ranks.xlsx")
 ```
 
 
-Cleaned data to make easier to work with:
+At first... Cleaned data to make easier to work with:
 
 - rename variables to readable, workable names
-- filter to recent 3 years
 - remove less-meaningful variables
+
+Later...
+
+- Filter to past 3 seasons to look at newer data
+- Create a few new variables for working the data
+
 
 ```{r data cleanup, echo = F, message = F}
 new_bb = bb_dat %>%
@@ -85,20 +91,30 @@ top_25s = inner_join(new_bb,new_ranks) %>%
 
 ```{r echo = F}
 #unique teams in NCAA n = 358, all divisions
+son_bb_dat %>%
+  distinct(team) %>%
+  count() %>%
+  rename(all_years = n)
+
 new_bb %>%
   distinct(team) %>%
   count() %>%
-  rename(unique_teams = n)
+  rename(x2018up = n)
 ```
 
 
 - How many unique players in NCAA 2018+
 
 ```{r echo = F}
+son_bb_dat %>%
+  distinct(player_name) %>%
+  count() %>%
+  rename(all_years = n)
+
 new_bb %>%
   distinct(player) %>%
   count() %>%
-  rename(unique_players = n)
+  rename(x2018up = n)
 ```
 
 - How many recurring players from seasons 2018-19+
@@ -116,7 +132,7 @@ top_25s %>%
 
 ---
 
-How's relationship between all the varibles?
+How's relationship among all the varibles?
 
 First, we take a look at how's relationship between all the varibles? 
 
@@ -133,7 +149,7 @@ So, we notice a couples negative correlation dbpm/dgbpm/bpm vs drtg, and pfr vs 
 
 ## Visualization
 
-Sports require teamwork! For how to evaluate a good team player, we measure player’s contributions and their impact on the court by BPM (Box Plus/Minus). The more time they contribute on the court, the more points they get. 
+Sports require teamwork! In evaluating a good team player, we measure player’s contributions and their impact on the court by BPM (Box Plus/Minus). The more time they contribute on the court, the more points they get. 
 
 
 ```{r echo = F, message = F, warning = F, fig.height = 3, fig.width = 8}
@@ -184,13 +200,13 @@ How  academic status (freshman, sophmores, juniors, and seniors) affect their pe
 ```{r echo = F, fig.height = 3, fig.width = 8}
 # Top 50 Assistant percentage  vs college year
 
-d<-son_bb_dat %>% slice_max(AST_per, n=100) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr") %>% mutate(college_year = recode(college_year, "Fr"= "Freshman","So" = "Sorphomore", "Jr" = "Junior", "Sr" = "Senior")) %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ 
+d<-son_bb_dat %>% slice_max(AST_per, n=50) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr") %>% mutate(college_year = recode(college_year, "Fr"= "Freshman","So" = "Sorphomore", "Jr" = "Junior", "Sr" = "Senior")) %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ 
   labs(fill = "College Year\n")+
   xlab("College Year") + 
   ylab("Count")+ ggtitle("Top 50 Assistant Percentage by College Year")+theme_linedraw() 
 
 # Top 50 Effective Field Goal vs college year
-e<-son_bb_dat %>% slice_max(eFG, n=100) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr")  %>% mutate(college_year = recode(college_year, "Fr"= "Freshman","So" = "Sorphomore", "Jr" = "Junior", "Sr" = "Senior")) %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ theme_linedraw() + 
+e<-son_bb_dat %>% slice_max(eFG, n=50) %>% count(college_year) %>% filter(college_year == "Fr"|college_year =="So"|college_year =="Jr"|college_year =="Sr")  %>% mutate(college_year = recode(college_year, "Fr"= "Freshman","So" = "Sorphomore", "Jr" = "Junior", "Sr" = "Senior")) %>% ggplot(aes(x=college_year,y = n,fill = college_year)) + geom_col()+ theme_linedraw() + 
   labs(fill = "College Year\n")+
   xlab("College Year") + 
   ylab("Count") + ggtitle("Top 50 Effective Field Goal by College Year")
@@ -245,7 +261,7 @@ summarize(ast_sum = sum(ast)
 
 Now we categorize all guard variations as guards, and all the Powerforwards, centers and stretch as post players.
 
-Free Throws are incredibly important because they are uncontested shots 
+Free Throws are important because they are uncontested shots 
 
 
 ```{r free throws, echo = F, message = F}
@@ -290,7 +306,7 @@ new_bb %>%
 #Deishuan Booker
 new_bb %>%
   filter(FTA > 250 & FT_per > .9) %>%
-  select(player, team, role, TP_per)
+  select(player, team, role, TP_per, year, yr)
 ```
 
 ## Rebounds
@@ -302,7 +318,7 @@ Rebounds are important because this is where the teams show who wnats it more, t
 # quantile(new_bb$ORB_per,c(.25,.5,.75))
 # quantile(new_bb$DRB_per,c(.25,.5,.75))
 
-r1 = new_bb %>%
+new_bb %>%
   filter(GP > 29) %>%
   ggplot(aes(x = ORB_per,y = DRB_per)) +
   geom_point() + 
@@ -314,11 +330,10 @@ r1 = new_bb %>%
 
 
 #Center/Powerforwards
-r2 = new_bb %>%
+new_bb %>%
   filter(GP > 29 & ORB_per >= 7.6 & DRB_per >= 16.7) %>%
   filter(role == "PF/C" | role == "C"
         | role == "Wing F" | role == "Stretch 4") %>%
-  filter(!yr == "Sr") %>%
   ggplot(aes(x = ORB_per,y = DRB_per)) +
   geom_point() + 
   geom_smooth()+
@@ -334,10 +349,8 @@ new_bb %>%
   filter(GP > 29 & ORB_per >= 7.6 & DRB_per >= 16.7) %>%
     filter(role == "Combo G" | role == "Scoring PG"
         | role == "Wing G" | role == "Pure PG") %>%
-  filter(!yr == "Sr") %>%
-  select(player,team)
+  select(player,team, year, yr)
 
-ggarrange(r1,r2, ncol = 2, nrow = 1)
 ```
 
 ## Assists
@@ -358,7 +371,8 @@ a1 = top_25s %>%
   xlab("Team")+
   ylab("Assists")+
   theme(axis.ticks.x = element_blank(),
-        axis.text.x = element_blank())
+        axis.text.x = element_blank())+
+  labs(caption = "2018-2021")
   
 
 some_new_bb = new_bb %>%
@@ -374,7 +388,10 @@ a2 = some_new_bb %>%
   geom_density(aes(x = n_ast, color = as.factor(appearances)))+
   ggtitle(label = "Mean Assists of All Teams Appearing in the Top 25",
         subtitle = "Independent of Season Rank For All Seasons")+
-  labs(color = "Appearances in Top 25")
+  labs(color = "Appearances in Top 25")+
+  xlab("Mean Assists")+
+  ylab("Team Count")+
+  labs(caption = "2018-2021")
 
 ggarrange(a1,a2, ncol = 2, nrow = 1)
 
@@ -399,7 +416,8 @@ at1 = new_bb %>%
   xlab("GP")+
   ylab("Assist/Turnover ratio")+
   ggtitle(label = "Rebound Comparison",
-          subtitle = "all players")
+          subtitle = "all players")+
+  labs(caption = "2018-2021")
 
 some_new_bb = new_bb %>%
   filter(top_team == T) %>%
@@ -414,9 +432,11 @@ at2 = some_new_bb %>%
   ggplot() +
   geom_density(aes(x = at_tot, color = as.factor(appearances)))+
   ggtitle(label = "Sum of Assist/Turnover Ratio of All Teams Appearing \nin the Top 25",
-        subtitle = "Independent of Season Rank For All Seasons")+
-  labs(color = "Appearances in Top 25")+
-  xlab("Assist/Turnover Ratio")
+        subtitle = "Independent of Season Rank For Recent Seasons")+
+  labs(color = "Appearances in Top 25",
+       caption = "2018-2021")+
+  xlab("Assist/Turnover Ratio")+
+  ylab("Team Count")
 
 ggarrange(at1,at2, ncol = 2, nrow = 1)
 ```
