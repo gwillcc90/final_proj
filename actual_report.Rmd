@@ -207,8 +207,7 @@ ggarrange(d,e, ncol = 2, nrow = 1)
 ```
 
 
-The relationship between Game played and Effective Field Goal?
-The Powerforward Position seems like  experience is very important to consider.
+The data comparing the variables Games Played (GP) and Effective Field Goal (eFG) is typical, but note that the Center and Powerforward position starts with a significantly lower eFG than other roles. The unobserved factors in post players' lacking eFG is personal, titanic heights and weights which should outclass every other position on the team, making their defensive presence indespensable. The graph also proves that individuals with better eFG will play more games.
 
 
 ```{r message = F, warning=F, echo = F, fig.width = 7, fig.height = 3}
@@ -394,7 +393,7 @@ new_ranks %>%
 
 ## The assist to turnover ratio 
 
-Finally, looking at assist/turnover ratio in necessary to see trends among the top 25 teams. Apparently, the average ast/tov ratio is one to one accounting for general turnovers that happen after shooting. The interesting part of this is that of the top 25 teams, the number of appearances in the most recent top 25 trends toward the higher your player's ast/tov ratio is the more likely you are to be in the top 25.
+Finally, looking at assist/turnover ratio in necessary to see trends among the top 25 teams. Apparently, the average ast/tov ratio is one to one while accounting for general turnovers that happen after shooting. The data shows that individuals ranked in the top 25 frequently average greater assist than turnovers, but recurring teams and players average slightly better; the density graph shows that teams with 3 appearances ultimately finish with individuals earning a higher ast/tov ratio.
 
 ```{r ast.tov, message = F, echo = F, fig.height = 3, fig.width = 7}
 # quantile(new_bb$ast.tov,c(.25,.5,.75), na.rm = T)
