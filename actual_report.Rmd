@@ -12,13 +12,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction and Exploring Data
 
-Sport analytics can be applied in order to discovery "hidden" talent, rate players, judge players' performance, rank top teams, anticipate opponent behavior, , address sport cliches, maintain integrity in sport, so on and so forth. By looking at valuable and meaningful set of variables, we can gain some knowledge behind those numbers and trends. 
+Sport analytics can be applied in order to discover "hidden" talent, rate players, judge players' performance, rank top teams, anticipate opponent behavior, address sport cliches, maintain integrity, and so on. By looking at valuable and meaningful sets of variables, we gain knowledge behind those numbers and trends. 
 
-In this project, we work on the College Basketball created by Aditya Kumar from Kaggle, which contains past decade's NCAA college basketball data. Our goal is to look at meaningful continuous variables to evaluate players' performance and to see whether there are trends of these variables among categorical variables that we considered in this project which are player's role and player's academic status. For player's role, we categorized them into Post Players which included PowerForward Center, Center, Wing Forward, Stretch 4; and Guards which included Combo Guard, Scoring Point Guard, Wing Guard, Pure Point Guard. For player's academic status, there are freshman, sophomores, juniors, and seniors. 
+In this project, we work on the College Basketball created by Aditya Kumar from Kaggle, which contains the past decade's NCAA college basketball data. The graphs compare by role, team, and academic status. The role split is guards and posts, where guards are Combo Guard, Scoring Point Guard, Pure Point Guard, and Wing Guard, and posts are Powerforward/Center, Center, Stretch 4, and Wing Forward. Academic status splits by the standard Freshman through Senior titles. Our goal is to categorically evaluate the trends in player performance via continuous and discrete variables.
 
-Therefore, we hope this approach can help us to navigate which variables to look at to evaluate a good players in different role, as well as how the role of a player define their performance, and  whether academic status affects their performance to some extend.
+This approach helps us navigate which variables to look at and evaluate good players in different roles, as well as how player's performance is defined, and  whether academic status affects performance.
 
-
+<<<<<<< HEAD
 ## Packages Required
 
 ```{r, message = F, warning = F}
@@ -44,7 +44,7 @@ We sourced this dataset from Kaggle,  created on 11/02/2021 by Aditya Kumar, who
 Variable names:
 
 __2) Top 25 College Basketball Team__
-This is created by Will Curkan, who sourced the top 25 teams list from the final week of each regular season, all of which are logged on wikipedia but sourced from the now archived corresponding year's AP poll.
+This is created by Will Curkan, who sourced the top 25 teams list from the final week of each regular season, all of which are logged on Wikipedia but sourced from the now archived corresponding year's AP poll.
 
 https://en.wikipedia.org/wiki/2018%E2%80%9319_NCAA_Division_I_men%27s_basketball_rankings
 
@@ -60,9 +60,9 @@ bb_dat = read.csv("CollegeBasketballPlayers2009-2021.csv")
 school_dat = read_excel("bb_school_ranks.xlsx")
 ```
 
-First, we cleaned data to make it easier to work with by renaming some of the important variables to readable and easy to work on, also we decided to remove less-meaningful variables and variables with a great deal of data missing
+First, we cleaned data to make it easier to work with by renaming some of the important variables to something readable and easy to work on, also we decided to remove less-meaningful variables and variables with a great deal of data missing.
 
-We have two 3 main dataframe. First, we have a full data through 2010-2021, 2009 have too many data missing. Second, we have data frame that filter to past 3 seasons to look at newer data. Third, we have ranking top 25 team dataframe.
+We have two main dataframes. First, we have a full data through 2010-2021, 2009 has too much data missing. Second, we have a data frame that filters to the past 3 seasons. The third dataframe defining the top 25 teams over the past 3 seasons is to categorize teams for further analysis.
 
 ```{r data cleanup, echo = F, message = F}
 # Dataframe from 3 latest years
@@ -134,7 +134,7 @@ top_25s %>%
   rename(recurring_players = n)
 ```
 
-For who approach this dataset knowing little about Basketball, using correlation map would be a good way to form ideas of how is the relationship or correlation between all the varibles at very first steps of exploring data. Following that, we can research the meaning behind these correlations, after that we can visualize for a closer look into their meanings.
+For those approaching this dataset while knowing little about Basketball, using a correlation map is a good way to form ideas of relationships or correlations between all the varibles. Consequently, we research the meaning behind these correlations, then visualize the data to explore the meanings.
 
 
 ```{r fig.height = 5, fig.width = 7, echo = F}
@@ -144,12 +144,12 @@ corrplot(cor(numeric_dat), type="upper", order="hclust",
 ```
 
 
-So, we notice a couples negative correlation Defensive Box plus/Minus vs Defensive Ratings and some positive correlation Points vs Minutes Played, Defensive Rebound vs. Offensive Rebound, Free Throw Attempts vs Free Throw Percentage. We will have a closer look by visualizing these relationship later in this project.
+Notice a couples negative correlations in Defensive Box plus/Minus vs Defensive Ratings and some positive correlation Points vs Minutes Played, Defensive Rebound vs. Offensive Rebound, Free Throw Attempts vs Free Throw Percentage. We will have a closer look by visualizing these relationship later in this project.
 
 
 ## Visualization
 
-Sports require teamwork! For how to evaluate a good team player, we measure player’s contributions and their impact on the court by BPM (Box Plus/Minus). The more time they contribute on the court, the more points they get. 
+Sports require teamwork! For evaluating a good team player, we measure player’s contributions and their impact on the court by BPM (Box Plus/Minus). The more time they contribute on the court, the more points they get. 
 
 ```{r echo = F, message = F, warning = F, fig.height = 3, fig.width = 12}
 full_bb $pts[full_bb$pts == ""] <- NA
