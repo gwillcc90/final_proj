@@ -149,7 +149,9 @@ Notice a couples negative correlations in Defensive Box plus/Minus vs Defensive 
 
 ## Visualization
 
-Sports require teamwork! For evaluating a good team player, we measure player’s contributions and their impact on the court by BPM (Box Plus/Minus). The more time they contribute on the court, the more points they get. 
+Sports require teamwork! In evaluating a good team player, we measure player’s contributions and their impact on the court by BPM (Box Plus/Minus), where a 0 value is an average player. Shown in the first graph, there is a linear relationship between Minute Play and Points, the more time player perform on the court, the more chances to score. 
+The second graph shows a correlation between BPM and Points: it is obvious that the more time on the court, the scoring attempts they get. However, more time on the court does not prove contribution to team performance in terms of point because an average of 15+ points is outlier-ish for all roles.
+The third graph is almost philosophical in nature. Individuals not playing at least 20 minutes have a negative BPM and do not adequately contribute to the team morale. Players that have a 0 BPM are not pinned to minutes defining their worth, and constitutes players with decent overall stats.
 
 ```{r echo = F, message = F, warning = F, fig.height = 3, fig.width = 12}
 full_bb $pts[full_bb$pts == ""] <- NA
@@ -207,7 +209,7 @@ ggarrange(d,e, ncol = 2, nrow = 1)
 ```
 
 
-The data comparing the variables Games Played (GP) and Effective Field Goal (eFG) is typical, but note that the Center and Powerforward position starts with a significantly lower eFG than other roles. The unobserved factors in post players' lacking eFG is personal, titanic heights and weights which should outclass every other position on the team, making their defensive presence indespensable. The graph also proves that individuals with better eFG will play more games.
+The data comparing the variables Games Played (GP) and Effective Field Goal (eFG) is typical, but note that the Center and Powerforward position starts with a significantly lower eFG than other roles. The unobserved factors in post players' lacking eFG is personal, titanic heights and weights which should outclass every other position on the team and make their defensive presence indespensable. The Stretch 4 is a role-variable position, categorized as post, but scores consistently enough to be a guard. The graph also proves, in general, that individuals with better eFG will play more games. 
 
 
 ```{r message = F, warning=F, echo = F, fig.width = 7, fig.height = 3}
