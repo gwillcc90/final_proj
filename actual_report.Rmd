@@ -197,8 +197,6 @@ ggarrange(d,e, ncol = 2, nrow = 1)
 ```
 
 
----
-
 The relationship between Game played and Effective Field Goal?
 The Powerforward Position seems like  experience is very important to consider.
 
@@ -212,19 +210,10 @@ full_bb %>%  na.omit() %>% ggplot(aes(y=eFG,x=GP))+
   labs(x="Game Glayed", y="Effective Field Goal %", title="Effective Field Goal % vs. Game played \nby Role")
 ```
 
----
-
-
-
 
 ## Free Throws
 
-
-
-
-Now we categorize all guard variations as guards, and all the Powerforwards, centers and stretch as post players.
-
-Free Throws are incredibly important because they are uncontested shots 
+Free Throws are one of the most important statistics to basketball players: consistently scoring during uncontested plays is important to any sport. This dataset shows that the average for free throws is 75% in high level basketball. The best scorers in free throws, however, score 5-7% more than the average where guards are the superior scorer.
 
 ```{r free throws, echo = F, message = F}
 # quantile(new_bb$FT_per,c(.25,.5,.75))
@@ -429,7 +418,7 @@ ggarrange(at1,at2, ncol = 2, nrow = 1)
 
 ~~Get Buckets~~
 
-There is a lot to learn about basketball statistics and even more data to work with. The apparent things in this data is that high shot percentages are crucial to being a good player, and even those with a percentage greater than 75 need to score more than 20 points a game to distinguish themselves from the others. Furthermore, even people with high percentages cannot play in the top 25 teams without either scoring high, or being skilled enough to compensate in other critical statistics like rebounding. Contrasting individuals with team efforts: being a high-tier teammate is about much more than personal score, and more about ball handling and control statistics like assists and turnover ratios.
+There is a lot to learn about basketball statistics and even more data to work with. The apparent statistic in basketball is that high shot percentages are crucial to being a good player, but those with high shot percentage need to score more than 20 points a game to distinguish themselves from the others. Furthermore, people with high percentages cannot play in the top 25 teams without either scoring high, or being skilled enough to compensate in other critical statistics like rebounding. Contrasting individuals with team efforts: being a high-tier teammate is about much more than personal score, and more about ball handling and control statistics like assists and turnover ratios.
 
 
 ## References
