@@ -219,6 +219,9 @@ full_bb %>%  na.omit() %>% ggplot(aes(y=eFG,x=GP))+
 
 ## Free Throws
 
+
+
+
 Now we categorize all guard variations as guards, and all the Powerforwards, centers and stretch as post players.
 
 Free Throws are incredibly important because they are uncontested shots 
@@ -250,8 +253,6 @@ new_bb %>%
 
 ```
 
----
-
 ```{r  echo = F, message = F}
 #Centers/Powerforwards
 new_bb %>%
@@ -276,7 +277,8 @@ new_bb %>%
 
 ## Rebounds
 
-Rebounds are important because this is where the teams show who wnats it more, this is where the game get's physical, and personal.
+Rebounding is where the game can get physical and personal. The graphs show that post players inherently rebound more than guard players and that there is little difference among academic status and this stat. The hope was that previous experience in the NCAA would show older, experienced teammates to prioritize second-chance shots, which was disproved. 
+
 
 ```{r rebound comparison, echo = F, message = F, fig.height = 3, fig.width = 7}
 # quantile(new_bb$GP,c(.25,.5,.75))
@@ -311,9 +313,6 @@ r2 = new_bb %>%
 ggarrange(r1,r2, ncol = 2, nrow = 1)
 ```
 
----
-
-Only 8 Guards fit the top 25% in both ORB and DRB
 
 ```{r  echo = F, message = F, fig.height = 3, fig.width = 7}
 #Guards
@@ -327,9 +326,9 @@ new_bb %>%
 
 
 ## Assists
-Last but not least. Sport is all about teamwork. So, Assists are super important!
 
-Let's look at The Relationship between Point vs Assists by Team, and  Top 10 teams have highest accumulated Assists.
+The data shows that there is a direct positive correlation between assists and points, because of the fact that a point must be scored to get an assist, though a score does not mean an assist was given. Though not graphed, score might not correlate with ranking because only a few of the teams with top assists and points are seen within the recent top 25 teams. Hence, assists and points themselves do not make for good individual players or teams. The assist-specific graphs show that consistent teams must have a higher average; this proves that teams should have consistent individuals throughout multiple seasons instead of relying on scoring or a superstar player, alone. 
+
 
 ```{r echo = F, fig.width = 7, fig.height = 3, message = F, warning=F}
 ast1 = full_bb %>%
@@ -351,9 +350,6 @@ slice_max(ast_sum, n = 10) %>%
 ggarrange(ast1,ast2, ncol = 2, nrow = 1)
 ```
 
----
-
-We filter down to the past 3 season's top 25 teams.
 
 ```{r top 10 asts, echo = F, message = F, fig.height = 4, fig.width = 8, warning=F}
 options(scipen = 999)
@@ -390,7 +386,6 @@ ggarrange(a1,a2, ncol = 2, nrow = 1)
 #2-3 of the rank 1s for past 3 seasons appeared 3x
 ```
 
----
 
 ```{r echo = F, message = F, fig.height = 3, fig.width = 7, warning=F}
 new_ranks %>%
@@ -400,8 +395,7 @@ new_ranks %>%
 
 ## The assist to turnover ratio 
 
-The assist to turnover ratio is one of many basketball statistics used to evaluate the ball control and ball handling skills of a player
-
+Finally, looking at assist/turnover ratio in necessary to see trends among the top 25 teams. Apparently, the average ast/tov ratio is one to one accounting for general turnovers that happen after shooting. The interesting part of this is that of the top 25 teams, the number of appearances in the most recent top 25 trends toward the higher your player's ast/tov ratio is the more likely you are to be in the top 25.
 
 ```{r ast.tov, message = F, echo = F, fig.height = 3, fig.width = 7}
 # quantile(new_bb$ast.tov,c(.25,.5,.75), na.rm = T)
@@ -435,7 +429,7 @@ ggarrange(at1,at2, ncol = 2, nrow = 1)
 
 ~~Get Buckets~~
 
-There is a lot to learn about basketball statistics and even more data to work with. The apparent things in this data is that high shot percentages are crucial to being a good player, and even those with a percentage greater than 75 need to score more than 20 points a game to distinguish themselves from the others. Furthermore, even people with high percentages cannot play in the top 20 without either scoring high, or being skilled enough to compensate in other critical statistics like rebounding. Contrasting individuals with team efforts: being a high-tier teammate is about much more than personal score, and more about ball handling, as per assists and turnover ratios.
+There is a lot to learn about basketball statistics and even more data to work with. The apparent things in this data is that high shot percentages are crucial to being a good player, and even those with a percentage greater than 75 need to score more than 20 points a game to distinguish themselves from the others. Furthermore, even people with high percentages cannot play in the top 25 teams without either scoring high, or being skilled enough to compensate in other critical statistics like rebounding. Contrasting individuals with team efforts: being a high-tier teammate is about much more than personal score, and more about ball handling and control statistics like assists and turnover ratios.
 
 
 ## References
