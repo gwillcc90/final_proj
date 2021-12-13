@@ -10,41 +10,59 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Introduction and Exploring Data
+
+Sport analytics can be applied in order to discovery "hidden" talent, rate players, judge players' performance, rank top teams, anticipate opponent behavior, , address sport cliches, maintain integrity in sport, so on and so forth. By looking at valuable and meaningful set of variables, we can gain some knowledge behind those numbers and trends. 
+
+In this project, we work on the College Basketball created by Aditya Kumar from Kaggle, which contains past decade's NCAA college basketball data. Our goal is to look at meaningful continuous variables to evaluate players' performance and to see whether there are trends of these variables among categorical variables that we considered in this project which are player's role and player's academic status. For player's role, we categorized them into Post Players which included PowerForward Center, Center, Wing Forward, Stretch 4; and Guards which included Combo Guard, Scoring Point Guard, Wing Guard, Pure Point Guard. For player's academic status, there are freshman, sophomores, juniors, and seniors. 
+
+Therefore, we hope this approach can help us to navigate which variables to look at to evaluate a good players in different role, as well as how the role of a player define their performance, and  whether academic status affects their performance to some extend.
+
+
+## Packages Required
+
 ```{r, message = F, warning = F}
-library(tidyverse)
-library(dplyr)
-library(GGally)
-library(ggplot2)
-library(corrplot)
-library(RColorBrewer)
-library(stringr)
-library(readxl)
-library(ggrepel)
+library(tidyverse) # multiple tidy up data packages 
+library(dplyr) # for data manipulation
+library(ggplot2) # used for data visualization
+library(corrplot) # usef for creating correlation matrix
+library(RColorBrewer) #Creates nice looking color palettes especially for correlation maps
+library(stringr) # 
+library(readxl) #used for reading the excel file
+library(ggrepel) # used to repel overlapping text labels 
 library(ggpubr)
 ```
 
-## Introduction and Exploring Data
+## Import Data & Preparation
+__Data Sources__
 
-Statistics are a good way to tell how you are doing in a sport and what you are best at. They can also help to determine where you and your team need to improve. We work on the College Basketball created by Aditya Kumar from Kaggle, which contains past decade's NCAA college basketball data.
+__1) College Basketball 2009-2021 + NBA Advanced Stats__
+ https://www.kaggle.com/adityak2003/college-basketball-players-20092021/metadata
 
-Our goal was to look at data trends based on role categorized into Post Players (PowerForward Center, Center, Wing Forward, Stretch 4) and Guards (Combo Guard, Scoring Point Guard, Wing Guard, Pure Point Guard); and academic status (freshman, sophomores, juniors, and seniors). 
+We sourced this dataset from Kaggle,  created on 11/02/2021 by Aditya Kumar, who collected from nba.com (https://www.nba.com/stats/draft/history/) and Bart Torvik's blog (https://barttorvik.com/) 
+ The dataset includes 66 variables.
+Variable names:
 
----
+__2) Top 25 College Basketball Team__
+This is created by Will Curkan, who sourced the top 25 teams list from the final week of each regular season, all of which are logged on wikipedia but sourced from the now archived corresponding year's AP poll.
+
+https://en.wikipedia.org/wiki/2018%E2%80%9319_NCAA_Division_I_men%27s_basketball_rankings
+
+https://en.wikipedia.org/wiki/2019%E2%80%9320_NCAA_Division_I_men%27s_basketball_rankings
+
+https://en.wikipedia.org/wiki/2020%E2%80%9321_NCAA_Division_I_men%27s_basketball_rankings
+
+https://collegebasketball.ap.org/poll/2019/20
+
 
 ```{r import data, echo = F}
 bb_dat = read.csv("CollegeBasketballPlayers2009-2021.csv")
 school_dat = read_excel("bb_school_ranks.xlsx")
 ```
 
-At first... Cleaned data to make easier to work with:
+First, we cleaned data to make it easier to work with by renaming some of the important variables to readable and easy to work on, also we decided to remove less-meaningful variables and variables with a great deal of data missing
 
-- rename variables to readable, workable names
-- remove less-meaningful variables
-
-Later...
-
-- Filter to past 3 seasons to look at newer data
-- Create a few new variables for working the data
+We have two 3 main dataframe. First, we have a full data through 2010-2021, 2009 have too many data missing. Second, we have data frame that filter to past 3 seasons to look at newer data. Third, we have ranking top 25 team dataframe.
 
 ```{r data cleanup, echo = F, message = F}
 # Dataframe from 3 latest years
@@ -75,11 +93,9 @@ top_25s = inner_join(new_bb,new_ranks) %>%
 
 ## Fun Fax
 
-- How many teams are represented in this dataset
+The whole dataset represents 362 teams, but the most recent 3 season only represents 358 teams.
 
 ```{r echo = F}
-#unique teams in NCAA n = 358, all divisions
-#unique teams in NCAA n = 358, all divisions
 full_bb %>%
   distinct(team) %>%
   count() %>%
@@ -91,7 +107,7 @@ new_bb %>%
 ```
 
 
-- How many unique players in NCAA
+Over the past decade, around 24000 players make up NCAA college basketball, 8700 of which were still playing until the season change.
 
 ```{r echo = F}
 full_bb %>%
@@ -104,9 +120,9 @@ new_bb %>%
   rename(x2018up = n)
 ```
 
----
+There are only 11 players, not including seniors, who could move on to play in this current season of the NCAA with the criteria that they played as a Freshman and are going into their senior year. Balancing the stress of high-level basketball and academic success must be difficult for many students. Some skilled students also proceed to the NBA     after a shortened college career.
 
-- How many recurring players from seasons 2018-19+
+
 ```{r echo = F}
 top_25s %>%
   filter(!college_year == "Sr") %>%
@@ -118,12 +134,7 @@ top_25s %>%
   rename(recurring_players = n)
 ```
 
-
----
-
-How's relationship among all varibles?
-
-First, we take a look at how's relationship between all the varibles? 
+For who approach this dataset knowing little about Basketball, using correlation map would be a good way to form ideas of how is the relationship or correlation between all the varibles at very first steps of exploring data. Following that, we can research the meaning behind these correlations, after that we can visualize for a closer look into their meanings.
 
 
 ```{r fig.height = 5, fig.width = 7, echo = F}
@@ -133,7 +144,7 @@ corrplot(cor(numeric_dat), type="upper", order="hclust",
 ```
 
 
-So, we notice a couples negative correlation Defensive Box plus/Minus vs Defensive Ratings and some positive correlation Points vs Minutes Played, Defensive Rebound vs. Offensive Rebound, Free Throw Attempts vs Free Throw Percentage.
+So, we notice a couples negative correlation Defensive Box plus/Minus vs Defensive Ratings and some positive correlation Points vs Minutes Played, Defensive Rebound vs. Offensive Rebound, Free Throw Attempts vs Free Throw Percentage. We will have a closer look by visualizing these relationship later in this project.
 
 
 ## Visualization
@@ -159,9 +170,9 @@ c = full_bb %>% filter(college_year != "Sr") %>% add_count(player_name) %>% filt
 ggarrange(b,a,c, ncol = 3, nrow = 1)
 ```
 
----
 
-How Each Position Attributes into Gaining Points
+This graph shows that guards, on average, are scoring the most points, though they have the most variation of range in points scored. The outlier guards are averaging closer to 25 points, while the outlier posts are doing well to average 15.
+
 
 ```{r message = F, warning = F, echo = F, fig.height= 3, fig.width = 7}
 full_bb %>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) + 
@@ -178,9 +189,8 @@ full_bb %>% na.omit() %>% ggplot(aes(x=role,y=pts,fill=role)) +
 ```
 
 
----
 
-How  academic status (freshman, sophmores, juniors, and seniors) affect their performance?
+The left graph shows that freshman are getting the highest amount of assists. Why is this? The intimidation of high-level basketball could play a factor, or they're more trusting of their veteran teammates. Either way, the trend shows that the higher your academic status, the less you pass the ball. Freshman also top the list concerning effective field goal percentage, likely because they take less shots, overall and frequently pass the ball.
 
 ```{r echo = F, fig.height = 3, fig.width = 7}
 # Top 50 Highest Assists Percentage  vs College Year
